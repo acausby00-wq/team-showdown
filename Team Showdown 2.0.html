@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emerald City — Team Showdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* (Styles are identical to ensure it stays beautiful) */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-deep: #f0faf5; --bg-card: #ffffff; --bg-surface: #f4faf7; --bg-lift: #e8f5ef; --bg-hover: #edf8f2;
+  --em-700: #047857; --em-600: #059669; --em-500: #10b981; --em-400: #34d399; --em-300: #6ee7b7; --em-200: #a7f3d0; --em-100: #d1fae5; --em-glow: rgba(16,185,129,.12);
+  --gold-600: #d97706; --gold-400: #f59e0b; --gold-300: #fbbf24; --gold-100: #fef3c7;
+  --teal-600: #0d9488; --teal-400: #2dd4bf; --teal-100: #ccfbf1;
+  --red-600: #dc2626; --red-400: #f87171; --red-100: #fee2e2; --amber-400: #fb923c; --amber-100: #ffedd5;
+  --text-primary: #0d2b1f; --text-secondary: #2d6a4a; --text-muted: #5a8a70; --text-accent: #059669;
+  --border-soft: rgba(5,150,105,.13); --border-mid: rgba(5,150,105,.24); --border-bright: rgba(5,150,105,.45);
+  --font-display: 'Cinzel', serif; --font-body: 'Outfit', sans-serif; --r: 10px; --r-lg: 16px;
+}
+[data-theme="dark"] {
+  --bg-deep: #0b120f; --bg-card: #111c17; --bg-surface: #16241e; --bg-lift: #1d2e26; --bg-hover: #20332a;
+  --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #94a3b8; --text-accent: #34d399;
+  --border-soft: rgba(52, 211, 153, 0.15); --border-mid: rgba(52, 211, 153, 0.3); --em-glow: rgba(52, 211, 153, 0.1);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body); background: var(--bg-deep);
+  background-image: radial-gradient(ellipse 60% 40% at 15% -5%, var(--em-glow) 0%, transparent 60%), radial-gradient(ellipse 40% 30% at 85% 95%, rgba(45,212,191,.06) 0%, transparent 55%), repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(5,150,105,.04) 39px, rgba(5,150,105,.04) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(5,150,105,.04) 39px, rgba(5,150,105,.04) 40px);
+  min-height: 100vh; color: var(--text-primary); font-size: 14px; line-height: 1.5; transition: background-color 0.3s ease, color 0.3s ease;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-track { background: var(--bg-deep); } ::-webkit-scrollbar-thumb { background: var(--em-400); border-radius: 3px; }
+.app { max-width: 1240px; margin: 0 auto; padding: 32px 20px 80px; }
+.hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; padding: 36px 40px 32px; margin-bottom: 28px; background: linear-gradient(135deg, var(--bg-card) 60%, var(--bg-lift)); border: 1px solid var(--border-mid); border-radius: var(--r-lg); overflow: hidden; animation: fadeUp .5s ease both; box-shadow: 0 2px 20px rgba(0,0,0,.08); transition: background 0.3s ease, border-color 0.3s ease; }
+.hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--em-glow) 0%, transparent 60%); pointer-events: none; }
+.hero::after { content: 'EMERALD CITY'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%) rotate(90deg); font-family: var(--font-display); font-size: 11px; letter-spacing: .35em; color: rgba(5,150,105,.07); pointer-events: none; white-space: nowrap; }
+.hero-left { position: relative; z-index: 1; }
+.hero-eyebrow { font-family: var(--font-display); font-size: 10px; letter-spacing: .3em; color: var(--em-400); text-transform: uppercase; margin-bottom: 8px; }
+.hero-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.15; letter-spacing: .02em; }
+.hero-title span { background: linear-gradient(90deg, var(--em-600), var(--teal-600)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-sub { margin-top: 6px; font-size: 13px; color: var(--text-muted); }
+.hero-right { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.period-tag { font-family: var(--font-display); font-size: 11px; letter-spacing: .15em; background: linear-gradient(135deg, var(--gold-400), var(--gold-300)); color: #0a0f0d; padding: 5px 16px; border-radius: 20px; font-weight: 600; display:flex; align-items:center; gap:6px; }
+.sync-dot { width: 8px; height: 8px; background: #000; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,0,0,0.4); } 70% { box-shadow: 0 0 0 6px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
+.btn-action { background: var(--bg-card); border: 1px solid var(--border-mid); color: var(--text-primary); border-radius: var(--r); padding: 7px 16px; font-family: var(--font-body); font-size: 12px; font-weight: 500; cursor: pointer; transition: all .2s; letter-spacing: .03em; text-decoration: none; display: inline-block; }
+.btn-action:hover { border-color: var(--em-500); color: var(--em-600); background: var(--bg-lift); }
+.card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px 24px; margin-bottom: 18px; animation: fadeUp .4s ease both; box-shadow: 0 1px 8px rgba(0,0,0,.06); transition: background-color 0.3s ease, border-color 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.tabs-row { display: flex; gap: 4px; margin-bottom: 22px; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 12px; padding: 4px; width: fit-content; box-shadow: 0 1px 6px rgba(0,0,0,.07); transition: background-color 0.3s; }
+.tab-btn { padding: 8px 22px; font-size: 12px; font-weight: 600; font-family: var(--font-display); letter-spacing: .1em; color: var(--text-muted); background: none; border: none; border-radius: 9px; cursor: pointer; transition: all .2s; }
+.tab-btn:hover { color: var(--text-primary); background: var(--bg-surface); }
+.tab-btn.active { background: linear-gradient(135deg, var(--em-600), var(--teal-600)); color: white; }
+.tab-pane { display: none; } .tab-pane.active { display: block; animation: fadeUp .3s ease both; }
+.team-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; } @media (max-width: 600px) { .team-summary { grid-template-columns: 1fr; } }
+.team-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 24px 28px; position: relative; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.07); transition: background-color 0.3s; }
+.team-card.first { border-color: var(--border-mid); background: linear-gradient(135deg, var(--bg-card) 60%, var(--bg-lift)); }
+.team-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.team-card.first::before { background: linear-gradient(90deg, var(--em-600), var(--teal-400)); } .team-card.second::before { background: linear-gradient(90deg, #a7f3d0, #6ee7b7); }
+.team-glow { position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, var(--em-glow) 0%, transparent 70%); pointer-events: none; }
+.team-label { font-family: var(--font-display); font-size: 10px; letter-spacing: .25em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+.team-name-display { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; letter-spacing: .04em; }
+.team-score-big { font-family: var(--font-body); font-size: 42px; font-weight: 300; line-height: 1; }
+.team-card.first .team-score-big { color: var(--em-500); } .team-card.second .team-score-big { color: var(--text-muted); }
+.team-rank-note { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.leading-chip { display: inline-block; font-family: var(--font-display); font-size: 9px; letter-spacing: .2em; background: linear-gradient(90deg, var(--gold-600), var(--gold-400)); color: white; padding: 3px 12px; border-radius: 20px; font-weight: 700; margin-top: 8px; }
+.table-wrap { overflow-x: auto; } table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { padding: 10px 14px; font-family: var(--font-display); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; background: var(--bg-surface); border-bottom: 1px solid var(--border-soft); white-space: nowrap; }
+thead th.center { text-align: center; }
+tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border-soft); vertical-align: middle; color: var(--text-primary); }
+tbody td.center { text-align: center; } tbody tr { transition: background .15s; } tbody tr:hover td { background: var(--bg-hover); } tbody tr:last-child td { border-bottom: none; }
+.rbadge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 600; font-size: 12px; font-family: var(--font-body); background: var(--bg-lift); color: var(--text-muted); }
+.rbadge.gold { background: linear-gradient(135deg,#d97706,#fbbf24); color: white; } .rbadge.silver { background: linear-gradient(135deg,#6b7280,#9ca3af); color: white; } .rbadge.bronze { background: linear-gradient(135deg,#b45309,#d97706); color: white; }
+.pill { display: inline-block; padding: 3px 11px; border-radius: 20px; font-size: 12px; font-weight: 600; font-family: var(--font-body); }
+.pill-green { background: rgba(209,250,229,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); } .pill-yellow { background: rgba(254,243,199,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); } .pill-red { background: rgba(254,226,226,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: .06em; padding: 2px 9px; border-radius: 10px; font-family: var(--font-display); }
+.tag-dom { background: rgba(204,251,241,0.15); color: #14b8a6; border: 1px solid rgba(20,184,166,0.3); } .tag-clove { background: rgba(254,243,199,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.cg { color: #10b981; font-weight: 500; } .cy { color: #f59e0b; font-weight: 500; } .cr { color: #ef4444; font-weight: 500; }
+.c-gap { color: #ef4444; font-size: 12px; font-weight: 600; font-family: var(--font-body); } .c-focus { color: #ef4444; font-size: 12px; font-weight: 600; }
+.breakdown-block { margin-bottom: 26px; } .breakdown-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
+.bd-metric-name { font-family: var(--font-display); font-size: 12px; letter-spacing: .15em; color: var(--text-primary); text-transform: uppercase; } .bd-goal { font-size: 11px; color: var(--text-muted); font-family: var(--font-body); }
+.bd-col-head { display: grid; grid-template-columns: 120px 1fr 58px 64px; gap: 10px; padding: 4px 0; margin-bottom: 2px; } .bd-col-head span { font-size: 10px; font-weight: 600; letter-spacing: .1em; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-display); } .bd-col-head span:nth-child(3), .bd-col-head span:nth-child(4) { text-align: right; }
+.bd-row { display: grid; grid-template-columns: 120px 1fr 58px 64px; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border-soft); } .bd-row:last-child { border-bottom: none; }
+.bd-rep { font-size: 12px; color: var(--text-secondary); } .bar-track { height: 7px; background: var(--bg-lift); border-radius: 4px; overflow: hidden; } .bar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+.bar-g { background: linear-gradient(90deg, var(--em-500), var(--em-400)); } .bar-y { background: linear-gradient(90deg, #d97706, #fbbf24); } .bar-r { background: linear-gradient(90deg, #dc2626, #f87171); }
+.bd-actual { text-align: right; font-size: 12px; font-weight: 500; color: var(--text-secondary); } .bd-pct { text-align: right; font-size: 12px; font-weight: 600; }
+.section-lbl { font-family: var(--font-display); font-size: 10px; letter-spacing: .22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; }
+.em-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-mid), transparent); margin: 6px 0 18px; }
+</style>
+</head>
+<body>
+<script>
+  (function() {
+    if (localStorage.getItem('ec_theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
+  })();
+</script>
+
+<div class="app">
+  <header class="hero" style="animation-delay:.05s">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Connectivity Source &mdash; Emerald City</div>
+      <h1 class="hero-title">Team <span>Showdown</span></h1>
+      <div class="hero-sub" id="team-names-sub">The Vipers (Team Dom) &middot; The Phantoms (Team Clove)</div>
+    </div>
+    <div class="hero-right">
+      <div class="header-actions">
+        <button class="btn-action" id="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+        <button class="btn-action" onclick="fetchData()">🔄 Force Refresh</button>
+      </div>
+      <span class="period-tag" id="period-tag"><div class="sync-dot"></div> Live Sync</span>
+    </div>
+  </header>
+
+  <div class="tabs-row">
+    <button class="tab-btn active" onclick="showTab('team',this)">Team Standings</button>
+    <button class="tab-btn" onclick="showTab('individual',this)">Leaderboard</button>
+    <button class="tab-btn" onclick="showTab('breakdown',this)">Metric Breakdown</button>
+  </div>
+
+  <div id="tab-team"       class="tab-pane active"></div>
+  <div id="tab-individual" class="tab-pane"></div>
+  <div id="tab-breakdown"  class="tab-pane"></div>
+</div>
+
+<script>
+/* --- LIVE DATA LINK --- */
+const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTU3GNiwnY4tgouygsPivto5zv1Zrfgwvcn228K8uDmPflM8QusFOK2t-G1bYvP0zNSCYxOm7Qo4lgO/pub?output=csv";
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('ec_theme', newTheme);
+  document.getElementById('theme-toggle').innerHTML = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (document.documentElement.getAttribute('data-theme') === 'dark') {
+    document.getElementById('theme-toggle').innerHTML = '☀️ Light';
+  }
+  fetchData();
+  // Auto refresh every 5 minutes (300,000 milliseconds) for the store display
+  setInterval(fetchData, 300000); 
+});
+
+const TEAM_NAMES = {
+  "Team Dom": { display: "The Vipers", og: "Team Dom" },
+  "Team Clove": { display: "The Phantoms", og: "Team Clove" }
+};
+
+const METRICS = [
+  { key:"Postpaid Voice", goal:20,  teamGoal: 95, weight:15, unit:"", isVol: true },
+  { key:"BTS",            goal:16,  teamGoal: 64, weight:15, unit:"", isVol: true },
+  { key:"HSI",            goal:8,   teamGoal: 29, weight:15, unit:"", isVol: true },
+  { key:"APK",            goal:2.0, teamGoal: 2.0, weight:5, unit:"", isVol: false },
+  { key:"CSAT",           goal:9.2, teamGoal: 9.2, weight:10, unit:"", isVol: false },
+  { key:"Visa App Rate",  goal:7.5, teamGoal: 7.5, weight:15, unit:"%", isVol: false },
+  { key:"Premium Mix",    goal:80,  teamGoal: 80, weight:12.5, unit:"%", isVol: false },
+  { key:"P360",           goal:40,  teamGoal: 40, weight:12.5, unit:"%", isVol: false }
+];
+
+let repsData = [];
+
+// Fetch data from Google Sheets
+async function fetchData() {
+    try {
+        const response = await fetch(GOOGLE_SHEET_CSV_URL);
+        const csvText = await response.text();
+        parseCSV(csvText);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+function parseCSV(csvText) {
+    const rows = csvText.trim().split('\n');
+    const headers = rows[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    
+    repsData = [];
+    
+    // Parse Google Sheet Data
+    for(let i = 1; i < rows.length; i++) {
+        if(!rows[i].trim()) continue;
+        const cols = rows[i].split(',').map(c => c.trim().replace(/"/g, ''));
+        let rep = { name: cols[0], team: cols[1], data: {} };
+        
+        METRICS.forEach(m => {
+            let index = headers.indexOf(m.key);
+            rep.data[m.key] = index > -1 ? (parseFloat(cols[index]) || 0) : 0;
+        });
+        
+        if(rep.name && rep.team) {
+            repsData.push(processRep(rep));
+        }
+    }
+    
+    // Sort overall leaderboard by composite
+    repsData.sort((a,b) => b.composite - a.composite);
+    renderAll();
+}
+
+function getWeights() {
+  const total = METRICS.reduce((a,b)=>a+b.weight,0)||1;
+  return METRICS.map(m => m.weight/total);
+}
+
+function processRep(rawRep) {
+  const weights = getWeights();
+  let composite=0, lowestPct=Infinity, focusArea="", focusGap=0;
+  const mp = {};
+  
+  METRICS.forEach((m,i)=>{
+    const val = rawRep.data[m.key];
+    const pct = (val/m.goal)*100;
+    composite += pct*weights[i];
+    mp[m.key] = {pct, val, goal:m.goal, unit:m.unit};
+    if(pct < lowestPct){
+        lowestPct=pct; focusArea=m.key; focusGap=m.goal-val;
+    }
+  });
+  
+  return {name: rawRep.name, team: rawRep.team, composite, focusArea, focusGap, mp};
+}
+
+/* ── Visual Helpers ── */
+function pillCls(s){ return s>=100?"pill-green":s>=80?"pill-yellow":"pill-red"; }
+function colorCls(p){ return p>=100?"cg":p>=80?"cy":"cr"; }
+function barCls(p){ return p>=100?"bar-g":p>=80?"bar-y":"bar-r"; }
+function rbadge(i){ const c=i===0?"gold":i===1?"silver":i===2?"bronze":""; return `<span class="rbadge ${c}">${i+1}</span>`; }
+function teamTag(t){ const cls = t==="Team Dom"?"tag-dom":"tag-clove"; const d = TEAM_NAMES[t] ? TEAM_NAMES[t].display : t; return `<span class="tag ${cls}">${d}</span>`; }
+function teamFullLabel(t){ const tn=TEAM_NAMES[t] || {display: t, og: t}; return `${tn.display} <span style="font-size:10px;color:var(--text-muted)">(${tn.og})</span>`; }
+
+/* ── Render Dashboard ── */
+function renderAll() {
+  if (repsData.length === 0) return;
+  const weights = getWeights();
+
+  // 1. Team Tab
+  const teams={};
+  repsData.forEach(r=>{
+    if(!teams[r.team]) teams[r.team]={reps:[], rawSum:{}};
+    teams[r.team].reps.push(r);
+    METRICS.forEach(m=>{ teams[r.team].rawSum[m.key] = (teams[r.team].rawSum[m.key]||0) + r.mp[m.key].val; });
+  });
+
+  const tArr = Object.keys(teams).map(t=>{
+    const tm = teams[t]; let teamComposite = 0; const mtPct = {};
+    METRICS.forEach((m, i) => {
+      let teamActual = m.isVol ? tm.rawSum[m.key] : (tm.rawSum[m.key] / tm.reps.length);
+      let pct = (teamActual / m.teamGoal) * 100;
+      mtPct[m.key] = pct; teamComposite += pct * weights[i];
+    });
+    return { name:t, avg: teamComposite, reps: tm.reps, mt: mtPct, count: tm.reps.length };
+  }).sort((a,b)=>b.avg-a.avg);
+
+  let tHTML=`<div class="team-summary">`;
+  tArr.forEach((t,i)=>{
+    tHTML+=`<div class="team-card ${i===0?"first":"second"}"><div class="team-glow"></div><div class="team-label">Team</div><div class="team-name-display">${teamFullLabel(t.name)}</div><div class="team-score-big">${t.avg.toFixed(1)}<span style="font-size:22px">%</span></div>${i===0?`<div><span class="leading-chip">LEADING</span></div>`:`<div class="team-rank-note">#2 this period</div>`}</div>`;
+  });
+  tHTML+=`</div><div class="em-divider"></div><div class="card"><div class="section-lbl">Team Metric Breakdown &mdash; % to Target</div><div class="table-wrap"><table><thead><tr><th>Team</th>${METRICS.map(m=>`<th class="center">${m.key}</th>`).join("")}</tr></thead><tbody>`;
+  tArr.forEach(t=>{
+    tHTML+=`<tr><td><strong>${teamFullLabel(t.name)}</strong></td>`;
+    METRICS.forEach(m=>{ const pct = t.mt[m.key]; tHTML+=`<td class="center"><span class="${colorCls(pct)}">${pct.toFixed(1)}%</span></td>`; });
+    tHTML+=`</tr>`;
+  });
+  tHTML+=`</tbody></table></div></div>`;
+  document.getElementById("tab-team").innerHTML=tHTML;
+
+  // 2. Individual Tab
+  let iHTML=`<div class="card"><div class="table-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Team</th><th>Composite</th>${METRICS.map(m=>`<th class="center">${m.key}</th>`).join("")}<th>Focus</th><th>Gap</th></tr></thead><tbody>`;
+  repsData.forEach((r,i)=>{
+    iHTML+=`<tr><td>${rbadge(i)}</td><td><strong>${r.name}</strong></td><td>${teamTag(r.team)}</td><td><span class="pill ${pillCls(r.composite)}">${r.composite.toFixed(1)}%</span></td>`;
+    METRICS.forEach(m=>{ const p=r.mp[m.key]; iHTML+=`<td class="center"><span class="${colorCls(p.pct)}">${p.val}${m.unit||""}</span></td>`; });
+    const gap=r.focusGap>0?`-${r.focusGap.toFixed(1)}`:"On track";
+    iHTML+=`<td class="c-focus">${r.focusArea}</td><td class="c-gap">${gap}</td></tr>`;
+  });
+  iHTML+=`</tbody></table></div></div>`;
+  document.getElementById("tab-individual").innerHTML=iHTML;
+
+  // 3. Breakdown Tab
+  let bHTML=`<div class="card">`;
+  METRICS.forEach(m=>{
+    bHTML+=`<div class="breakdown-block"><div class="breakdown-head"><span class="bd-metric-name">${m.key}</span><span class="bd-goal">Rep Goal: ${m.goal}${m.unit||""} ${m.isVol ? `| Team Target: ${m.teamGoal}` : ""}</span></div><div class="bd-col-head"><span>Rep</span><span>Progress</span><span style="text-align:right">Actual</span><span style="text-align:right">% to Goal</span></div>`;
+    repsData.forEach(r=>{
+      const p=r.mp[m.key], w=Math.min(p.pct,100).toFixed(1);
+      bHTML+=`<div class="bd-row"><div class="bd-rep">${r.name} ${teamTag(r.team)}</div><div class="bar-track"><div class="${barCls(p.pct)} bar-fill" style="width:${w}%"></div></div><div class="bd-actual">${p.val}${m.unit||""}</div><div class="bd-pct ${colorCls(p.pct)}">${p.pct.toFixed(1)}%</div></div>`;
+    });
+    bHTML+=`</div>`;
+  });
+  bHTML+=`</div>`;
+  document.getElementById("tab-breakdown").innerHTML=bHTML;
+}
+
+function showTab(id,btn) {
+  document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
+  btn.classList.add("active");
+}
+</script>
+</body>
+</html>
