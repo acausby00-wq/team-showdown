@@ -46,20 +46,31 @@ body {
 .hero-sub { margin-top: 8px; font-size: 14px; color: var(--text-muted); }
 .hero-right { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .header-actions { display: flex; gap: 8px; align-items: center; }
-.period-tag { font-family: var(--font-display); font-size: 12px; letter-spacing: .15em; background: linear-gradient(135deg, var(--gold-400), var(--gold-300)); color: #0a0f0d; padding: 6px 18px; border-radius: 20px; font-weight: 600; display:flex; align-items:center; gap:8px; }
-.sync-dot { width: 10px; height: 10px; background: #000; border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,0,0,0.4); } 70% { box-shadow: 0 0 0 8px rgba(0,0,0,0); } 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } }
+
+/* ── Month Selector Select Box ── */
+.month-selector {
+  appearance: none;
+  background: linear-gradient(135deg, var(--gold-400), var(--gold-300));
+  color: #0a0f0d; border: none; border-radius: 20px; padding: 6px 36px 6px 18px;
+  font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: .15em;
+  cursor: pointer; text-transform: uppercase;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%230a0f0d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 10px auto;
+  outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: opacity 0.2s;
+}
+.month-selector:hover { opacity: 0.9; }
+
+.period-tag { font-family: var(--font-display); font-size: 12px; letter-spacing: .15em; background: var(--bg-surface); border: 1px solid var(--border-soft); color: var(--text-muted); padding: 6px 18px; border-radius: 20px; font-weight: 600; display:flex; align-items:center; gap:8px; transition: all 0.3s ease; }
+.period-tag.live { background: linear-gradient(135deg, var(--em-600), var(--teal-600)); color: white; border: none; box-shadow: 0 2px 10px var(--em-glow);}
+.sync-dot { width: 10px; height: 10px; background: #fff; border-radius: 50%; animation: pulse 2s infinite; display: none;}
+.period-tag.live .sync-dot { display: block; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 8px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
 .btn-action { background: var(--bg-card); border: 1px solid var(--border-mid); color: var(--text-primary); border-radius: var(--r); padding: 8px 18px; font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; letter-spacing: .03em; text-decoration: none; display: inline-block; }
 
 /* ── TV Grid Layout (2 Columns) ── */
-.tv-grid {
-  display: grid;
-  grid-template-columns: 32% 66%;
-  justify-content: space-between;
-  align-items: start;
-  gap: 24px;
-}
-@media (max-width: 1200px) { .tv-grid { grid-template-columns: 1fr; } }
+.tv-grid { display: grid; grid-template-columns: 32% 66%; justify-content: space-between; align-items: start; gap: 24px; }
+@media (max-width: 1200px) { .tv-grid { grid-template-columns: 1fr; } } 
 
 /* ── Cards ── */
 .card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 24px 28px; margin-bottom: 20px; animation: fadeUp .4s ease both; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
@@ -98,9 +109,6 @@ tbody tr:last-child td { border-bottom: none; }
 
 .section-lbl { font-family: var(--font-display); font-size: 12px; letter-spacing: .22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 8px;}
 
-/* ── Sync / Error State ── */
-.period-tag.is-stale { background: linear-gradient(135deg, var(--red-400), var(--red-600)); color: #fff; }
-.period-tag.is-stale .sync-dot { background: #fff; }
 .data-error-banner { display: none; align-items: center; gap: 10px; background: var(--red-100); border: 1px solid rgba(220,38,38,.3); color: var(--red-600); border-radius: var(--r); padding: 10px 18px; margin-bottom: 16px; font-size: 13px; font-weight: 500; }
 .data-error-banner.show { display: flex; }
 </style>
@@ -121,9 +129,10 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
     <div class="hero-right">
       <div class="header-actions">
+        <select id="month-selector" class="month-selector" onchange="fetchData()"></select>
         <button class="btn-action" id="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
       </div>
-      <span class="period-tag" id="period-tag"><div class="sync-dot"></div> <span id="sync-label">Live Sync</span></span>
+      <span class="period-tag" id="period-tag"><div class="sync-dot"></div> <span id="sync-label">Loading Data...</span></span>
     </div>
   </header>
 
@@ -139,8 +148,28 @@ tbody tr:last-child td { border-bottom: none; }
 </div>
 
 <script>
-/* --- LIVE DATA LINK (Restored to the 2PACX Publish Link) --- */
-const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=0";
+/* --- DATA SOURCES (Archive Logic) --- */
+// The first item in this list is the default that Yodeck will show automatically.
+const MONTH_DATA = [
+  {
+    label: "July 2026",
+    // Replace the GID below with your actual July tab GID when ready. 
+    // Right now, this is a placeholder URL so it doesn't break.
+    url: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=333252067",
+    isLive: true
+  },
+  {
+    label: "June 2026 (Final)",
+    // This is your confirmed, working June data link.
+    url: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=0",
+    isLive: false
+  }
+];
+
+function initMonthSelector() {
+  const selector = document.getElementById('month-selector');
+  selector.innerHTML = MONTH_DATA.map((m, i) => `<option value="${i}">${m.label}</option>`).join("");
+}
 
 function toggleTheme() {
   const html = document.documentElement;
@@ -154,8 +183,13 @@ window.addEventListener('DOMContentLoaded', () => {
   if (document.documentElement.getAttribute('data-theme') === 'dark') {
     document.getElementById('theme-toggle').innerHTML = '☀️ Light';
   }
+  initMonthSelector();
+  
+  // Initialize to index 1 (June) right now purely so it loads your existing data without crashing. 
+  // Once you put your real July URL in the code above, change `month-selector`.value back to "0".
+  document.getElementById('month-selector').value = "1"; 
+  
   fetchData();
-  // Auto refresh every 5 minutes (300,000 milliseconds) for Yodeck
   setInterval(fetchData, 300000); 
 });
 
@@ -178,46 +212,49 @@ const METRICS = [
 let repsData = [];
 
 function formatSyncTime(date) {
-    return date.toLocaleString('en-US', {
-        month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
-    });
+    return date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
-function setSyncState(ok, when) {
+function updateSyncUI(ok, source) {
     const tag = document.getElementById('period-tag');
     const label = document.getElementById('sync-label');
     const banner = document.getElementById('data-error-banner');
-    if (ok) {
-        tag.classList.remove('is-stale');
-        label.textContent = `Live Sync · ${formatSyncTime(when)}`;
-        banner.classList.remove('show');
-    } else {
-        tag.classList.add('is-stale');
-        label.textContent = when ? `Sync Failed · Last OK ${formatSyncTime(when)}` : 'Sync Failed';
+    
+    if (!ok) {
+        tag.classList.remove('live');
+        label.textContent = 'Sync Failed';
         banner.classList.add('show');
+        return;
+    }
+    
+    banner.classList.remove('show');
+    if (source.isLive) {
+        tag.classList.add('live');
+        label.textContent = `Live Sync · Updated ${formatSyncTime(new Date())}`;
+    } else {
+        tag.classList.remove('live');
+        label.textContent = `Archived Data · Static View`;
     }
 }
 
-let lastSuccessfulSync = null;
-
-// Fetch data from Google Sheets
 async function fetchData() {
+    const selectedIndex = document.getElementById('month-selector').value;
+    const currentSource = MONTH_DATA[selectedIndex];
+    
     try {
-        const response = await fetch(GOOGLE_SHEET_CSV_URL);
+        const response = await fetch(currentSource.url);
         if (!response.ok || response.headers.get("content-type").includes("text/html")) {
-            throw new Error("Sheet is likely restricted or invalid URL.");
+            throw new Error("Sheet restricted or invalid URL.");
         }
         const csvText = await response.text();
         parseCSV(csvText);
-        lastSuccessfulSync = new Date();
-        setSyncState(true, lastSuccessfulSync);
+        updateSyncUI(true, currentSource);
     } catch (error) {
         console.error("Error fetching data:", error);
-        setSyncState(false, lastSuccessfulSync);
+        updateSyncUI(false, currentSource);
     }
 }
 
-// Parses a single CSV line, respecting double-quoted fields that may contain commas.
 function parseCSVLine(line) {
     const cols = [];
     let cur = '';
@@ -225,7 +262,7 @@ function parseCSVLine(line) {
     for (let i = 0; i < line.length; i++) {
         const ch = line[i];
         if (ch === '"') {
-            if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } // escaped quote
+            if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
             else { inQuotes = !inQuotes; }
         } else if (ch === ',' && !inQuotes) {
             cols.push(cur.trim());
@@ -268,12 +305,6 @@ function getWeights() {
   return METRICS.map(m => m.weight/total);
 }
 
-// Each metric's %-to-goal is capped here before it's weighted into the
-// composite. 125% matches where payout actually tops out, so someone
-// blowing way past a small, easy-to-overshoot goal (like Visa App Rate)
-// can't single-handedly outweigh being at zero on a core metric like Voice.
-const COMPOSITE_CAP = 125;
-
 function processRep(rawRep) {
   const weights = getWeights();
   let composite=0, lowestPct=Infinity, focusArea="", focusGap=0;
@@ -282,8 +313,7 @@ function processRep(rawRep) {
   METRICS.forEach((m,i)=>{
     const val = rawRep.data[m.key];
     const pct = (val/m.goal)*100;
-    const cappedPct = Math.min(pct, COMPOSITE_CAP);
-    composite += cappedPct*weights[i];
+    composite += pct*weights[i];
     mp[m.key] = {pct, val, goal:m.goal, unit:m.unit};
     if(pct < lowestPct){
         lowestPct=pct; focusArea=m.key; focusGap=m.goal-val;
@@ -305,7 +335,6 @@ function renderYodeckLayout() {
   if (repsData.length === 0) return;
   const weights = getWeights();
 
-  // 1. Calculate Team Data for Left Sidebar
   const teams={};
   repsData.forEach(r=>{
     if(!teams[r.team]) teams[r.team]={reps:[], rawSum:{}};
@@ -323,7 +352,6 @@ function renderYodeckLayout() {
     return { name:t, avg: teamComposite, reps: tm.reps, mt: mtPct, count: tm.reps.length };
   }).sort((a,b)=>b.avg-a.avg);
 
-  // Build Left Sidebar HTML
   let tHTML = `<div class="section-lbl">Team Standings</div><div class="team-summary">`;
   tArr.forEach((t,i)=>{
     tHTML+=`<div class="team-card ${i===0?"first":"second"}"><div class="team-glow"></div><div class="team-label">Team</div><div class="team-name-display">${teamFullLabel(t.name)}</div><div class="team-score-big">${t.avg.toFixed(1)}<span style="font-size:24px">%</span></div>${i===0?`<div><span class="leading-chip">LEADING</span></div>`:`<div class="team-rank-note">#2 this period</div>`}</div>`;
@@ -343,7 +371,6 @@ function renderYodeckLayout() {
   
   document.getElementById("tv-team-section").innerHTML = tHTML;
 
-  // 2. Build Right Main HTML (Leaderboard)
   let iHTML = `<div class="card" style="height: 100%;"><div class="section-lbl">Individual Leaderboard</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Team</th><th class="center">Composite</th>`;
   METRICS.forEach(m => { iHTML += `<th class="center">${m.key}</th>`; });
   iHTML += `<th>Focus Area</th><th>Gap</th></tr></thead><tbody>`;
