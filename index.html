@@ -49,15 +49,13 @@ body {
 
 /* ── Month Selector Select Box ── */
 .month-selector {
-  appearance: none;
-  background: linear-gradient(135deg, var(--gold-400), var(--gold-300));
+  appearance: none; background: linear-gradient(135deg, var(--gold-400), var(--gold-300));
   color: #0a0f0d; border: none; border-radius: 20px; padding: 6px 36px 6px 18px;
   font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: .15em;
   cursor: pointer; text-transform: uppercase;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%230a0f0d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat; background-position: right 12px center; background-size: 10px auto;
-  outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: opacity 0.2s;
+  outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: opacity 0.2s;
 }
 .month-selector:hover { opacity: 0.9; }
 
@@ -68,7 +66,7 @@ body {
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 8px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
 .btn-action { background: var(--bg-card); border: 1px solid var(--border-mid); color: var(--text-primary); border-radius: var(--r); padding: 8px 18px; font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; letter-spacing: .03em; text-decoration: none; display: inline-block; }
 
-/* ── TV Grid Layout (2 Columns) ── */
+/* ── TV Grid Layout ── */
 .tv-grid { display: grid; grid-template-columns: 32% 66%; justify-content: space-between; align-items: start; gap: 24px; }
 @media (max-width: 1200px) { .tv-grid { grid-template-columns: 1fr; } } 
 
@@ -108,6 +106,7 @@ tbody tr:last-child td { border-bottom: none; }
 .c-gap { color: #ef4444; font-size: 13px; font-weight: 600; font-family: var(--font-body); } .c-focus { color: #ef4444; font-size: 13px; font-weight: 600; }
 
 .section-lbl { font-family: var(--font-display); font-size: 12px; letter-spacing: .22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 8px;}
+.goal-125 { color: var(--gold-600); font-weight: 600; font-size: 11px; margin-left: 6px;}
 
 .data-error-banner { display: none; align-items: center; gap: 10px; background: var(--red-100); border: 1px solid rgba(220,38,38,.3); color: var(--red-600); border-radius: var(--r); padding: 10px 18px; margin-bottom: 16px; font-size: 13px; font-weight: 500; }
 .data-error-banner.show { display: flex; }
@@ -129,6 +128,7 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
     <div class="hero-right">
       <div class="header-actions">
+        <!-- Month Selector Dropdown -->
         <select id="month-selector" class="month-selector" onchange="fetchData()"></select>
         <button class="btn-action" id="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
       </div>
@@ -139,32 +139,44 @@ tbody tr:last-child td { border-bottom: none; }
   <div class="data-error-banner" id="data-error-banner">⚠ <span id="data-error-text">Couldn't reach the live data source. Check Google Sheet sharing permissions.</span></div>
 
   <div class="tv-grid">
-      <div class="tv-sidebar" id="tv-team-section">
-          </div>
-      <div class="tv-main" id="tv-leaderboard-section">
-          </div>
+      <div class="tv-sidebar" id="tv-team-section"></div>
+      <div class="tv-main" id="tv-leaderboard-section"></div>
   </div>
-
 </div>
 
 <script>
-/* --- DATA SOURCES (Archive Logic) --- */
-// The first item in this list is the default that Yodeck will show automatically.
+/* --- DYNAMIC DATA & GOALS LINKS --- */
 const MONTH_DATA = [
   {
-    label: "July 2026",
-    // Replace the GID below with your actual July tab GID when ready. 
-    // Right now, this is a placeholder URL so it doesn't break.
-    url: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=333252067",
+    label: "July 2026 (Live)",
+    // Remember to swap YOUR_JULY_DATA_GID to your actual tab GID!
+    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=YOUR_JULY_DATA_GID",
+    // This specifically fetches ONLY cells H14 through Z21 to parse your goals!
+    goalsUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=1928950207&range=H14:Z21",
     isLive: true
   },
   {
     label: "June 2026 (Final)",
-    // This is your confirmed, working June data link.
-    url: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=0",
+    // Verified June Data Link
+    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=0",
+    goalsUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=1928950207&range=H14:Z21",
     isLive: false
   }
 ];
+
+// Fallback metrics in case the Goals sheet fails to load
+let METRICS = [
+  { key:"Postpaid Voice", goal:20, teamGoal: 95, teamGoal125: 119, weight:17.5, unit:"", isVol: true },
+  { key:"BTS",            goal:16, teamGoal: 64, teamGoal125: 80, weight:17.5, unit:"", isVol: true },
+  { key:"HSI",            goal:8,  teamGoal: 29, teamGoal125: 36, weight:12.5, unit:"", isVol: true },
+  { key:"APK",            goal:2.0,teamGoal: 2.0, teamGoal125: 2.5, weight:5, unit:"", isVol: false },
+  { key:"CSAT",           goal:9.2,teamGoal: 9.2, teamGoal125: 11.5, weight:10, unit:"", isVol: false },
+  { key:"Visa App Rate",  goal:7.5,teamGoal: 7.5, teamGoal125: 9.3, weight:12.5, unit:"%", isVol: false },
+  { key:"Premium Mix",    goal:80, teamGoal: 80, teamGoal125: 100, weight:12.5, unit:"%", isVol: false },
+  { key:"P360",           goal:40, teamGoal: 40, teamGoal125: 50, weight:12.5, unit:"%", isVol: false }
+];
+
+let repsData = [];
 
 function initMonthSelector() {
   const selector = document.getElementById('month-selector');
@@ -184,10 +196,8 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('theme-toggle').innerHTML = '☀️ Light';
   }
   initMonthSelector();
-  
-  // Initialize to index 1 (June) right now purely so it loads your existing data without crashing. 
-  // Once you put your real July URL in the code above, change `month-selector`.value back to "0".
-  document.getElementById('month-selector').value = "1"; 
+  // Set to 0 to automatically load the newest data (July)
+  document.getElementById('month-selector').value = "0"; 
   
   fetchData();
   setInterval(fetchData, 300000); 
@@ -198,22 +208,7 @@ const TEAM_NAMES = {
   "Team Clove": { display: "The Phantoms", og: "Team Clove" }
 };
 
-const METRICS = [
-  { key:"Postpaid Voice", goal:20,  teamGoal: 95, weight:17.5, unit:"", isVol: true },
-  { key:"BTS",            goal:16,  teamGoal: 64, weight:17.5, unit:"", isVol: true },
-  { key:"HSI",            goal:8,   teamGoal: 29, weight:12.5, unit:"", isVol: true },
-  { key:"APK",            goal:2.0, teamGoal: 2.0, weight:5, unit:"", isVol: false },
-  { key:"CSAT",           goal:9.2, teamGoal: 9.2, weight:10, unit:"", isVol: false },
-  { key:"Visa App Rate",  goal:7.5, teamGoal: 7.5, weight:12.5, unit:"%", isVol: false },
-  { key:"Premium Mix",    goal:80,  teamGoal: 80, weight:12.5, unit:"%", isVol: false },
-  { key:"P360",           goal:40,  teamGoal: 40, weight:12.5, unit:"%", isVol: false }
-];
-
-let repsData = [];
-
-function formatSyncTime(date) {
-    return date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' });
-}
+function formatSyncTime(date) { return date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' }); }
 
 function updateSyncUI(ok, source) {
     const tag = document.getElementById('period-tag');
@@ -237,17 +232,30 @@ function updateSyncUI(ok, source) {
     }
 }
 
+// Fetch BOTH sheets simultaneously
 async function fetchData() {
     const selectedIndex = document.getElementById('month-selector').value;
     const currentSource = MONTH_DATA[selectedIndex];
     
     try {
-        const response = await fetch(currentSource.url);
-        if (!response.ok || response.headers.get("content-type").includes("text/html")) {
-            throw new Error("Sheet restricted or invalid URL.");
+        const [dataRes, goalsRes] = await Promise.all([
+            fetch(currentSource.dataUrl),
+            fetch(currentSource.goalsUrl)
+        ]);
+        
+        // Smart Goal Parser: Extracts numbers directly from H14:Z21
+        if (goalsRes.ok && !goalsRes.headers.get("content-type").includes("text/html")) {
+            const goalsText = await goalsRes.text();
+            parseSmartGoalsCSV(goalsText);
         }
-        const csvText = await response.text();
-        parseCSV(csvText);
+
+        if (!dataRes.ok || dataRes.headers.get("content-type").includes("text/html")) {
+            throw new Error("Data sheet restricted or invalid URL.");
+        }
+        
+        const dataText = await dataRes.text();
+        parseDataCSV(dataText);
+        
         updateSyncUI(true, currentSource);
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -256,29 +264,46 @@ async function fetchData() {
 }
 
 function parseCSVLine(line) {
-    const cols = [];
-    let cur = '';
-    let inQuotes = false;
+    const cols = []; let cur = ''; let inQuotes = false;
     for (let i = 0; i < line.length; i++) {
         const ch = line[i];
         if (ch === '"') {
             if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
             else { inQuotes = !inQuotes; }
-        } else if (ch === ',' && !inQuotes) {
-            cols.push(cur.trim());
-            cur = '';
-        } else {
-            cur += ch;
-        }
+        } else if (ch === ',' && !inQuotes) { cols.push(cur.trim()); cur = ''; } 
+        else { cur += ch; }
     }
-    cols.push(cur.trim());
-    return cols;
+    cols.push(cur.trim()); return cols;
 }
 
-function parseCSV(csvText) {
+function parseSmartGoalsCSV(csvText) {
+    const rows = csvText.trim().split('\n');
+    let rowIndex = 0;
+    
+    for(let i = 0; i < rows.length; i++) {
+        if(!rows[i].trim()) continue;
+        if(rowIndex >= METRICS.length) break; // Only look for our 8 metrics
+        
+        const cols = parseCSVLine(rows[i]);
+        let numbers = [];
+        
+        // Scans the row and strips everything except numbers/decimals to grab your goals
+        cols.forEach(c => {
+            let val = parseFloat(c.replace(/[^0-9.-]+/g,""));
+            if(!isNaN(val)) numbers.push(val);
+        });
+        
+        if(numbers.length >= 1) METRICS[rowIndex].goal = numbers[0];
+        if(numbers.length >= 2) METRICS[rowIndex].teamGoal = numbers[1];
+        if(numbers.length >= 3) METRICS[rowIndex].teamGoal125 = numbers[2];
+        
+        rowIndex++;
+    }
+}
+
+function parseDataCSV(csvText) {
     const rows = csvText.trim().split('\n');
     const headers = parseCSVLine(rows[0]);
-    
     repsData = [];
     
     for(let i = 1; i < rows.length; i++) {
@@ -291,9 +316,7 @@ function parseCSV(csvText) {
             rep.data[m.key] = index > -1 ? (parseFloat(cols[index]) || 0) : 0;
         });
         
-        if(rep.name && rep.team) {
-            repsData.push(processRep(rep));
-        }
+        if(rep.name && rep.team) { repsData.push(processRep(rep)); }
     }
     
     repsData.sort((a,b) => b.composite - a.composite);
@@ -312,12 +335,10 @@ function processRep(rawRep) {
   
   METRICS.forEach((m,i)=>{
     const val = rawRep.data[m.key];
-    const pct = (val/m.goal)*100;
+    const pct = m.goal > 0 ? (val/m.goal)*100 : 0;
     composite += pct*weights[i];
     mp[m.key] = {pct, val, goal:m.goal, unit:m.unit};
-    if(pct < lowestPct){
-        lowestPct=pct; focusArea=m.key; focusGap=m.goal-val;
-    }
+    if(pct < lowestPct){ lowestPct=pct; focusArea=m.key; focusGap=m.goal-val; }
   });
   
   return {name: rawRep.name, team: rawRep.team, composite, focusArea, focusGap, mp};
@@ -334,8 +355,8 @@ function teamFullLabel(t){ const tn=TEAM_NAMES[t] || {display: t, og: t}; return
 function renderYodeckLayout() {
   if (repsData.length === 0) return;
   const weights = getWeights();
-
   const teams={};
+  
   repsData.forEach(r=>{
     if(!teams[r.team]) teams[r.team]={reps:[], rawSum:{}};
     teams[r.team].reps.push(r);
@@ -346,7 +367,7 @@ function renderYodeckLayout() {
     const tm = teams[t]; let teamComposite = 0; const mtPct = {};
     METRICS.forEach((m, i) => {
       let teamActual = m.isVol ? tm.rawSum[m.key] : (tm.rawSum[m.key] / tm.reps.length);
-      let pct = (teamActual / m.teamGoal) * 100;
+      let pct = m.teamGoal > 0 ? (teamActual / m.teamGoal) * 100 : 0;
       mtPct[m.key] = pct; teamComposite += pct * weights[i];
     });
     return { name:t, avg: teamComposite, reps: tm.reps, mt: mtPct, count: tm.reps.length };
@@ -359,7 +380,9 @@ function renderYodeckLayout() {
   tHTML += `</div>`;
   
   tHTML += `<div class="card"><div class="section-lbl">Team Metric Breakdown (% to Target)</div><div class="table-wrap"><table><thead><tr><th>Team</th>`;
-  METRICS.forEach(m => { tHTML += `<th class="center">${m.key}</th>`; });
+  METRICS.forEach(m => { 
+    tHTML += `<th class="center">${m.key}<br><span class="goal-125">(125%: ${m.teamGoal125}${m.unit})</span></th>`; 
+  });
   tHTML += `</tr></thead><tbody>`;
   
   tArr.forEach(t=>{
