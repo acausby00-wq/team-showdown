@@ -148,12 +148,16 @@ tbody tr:last-child td { border-bottom: none; }
 /* --- DYNAMIC DATA & GOALS LINKS --- */
 const MONTH_DATA = [
   {
-    label: "July 2026 (Live)",
-    // Remember to swap YOUR_JULY_DATA_GID to your actual tab GID!
-    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=YOUR_JULY_DATA_GID",
-    // This specifically fetches ONLY cells H14 through Z21 to parse your goals!
+    label: "August 2026 (Live)",
+    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=YOUR_AUGUST_DATA_GID",
     goalsUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=1928950207&range=H14:Z21",
     isLive: true
+  },
+  {
+    label: "July 2026 (Final)",
+    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=YOUR_JULY_DATA_GID",
+    goalsUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=YOUR_JULY_GOALS_GID",
+    isLive: false
   },
   {
     label: "June 2026 (Final)",
@@ -196,7 +200,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('theme-toggle').innerHTML = '☀️ Light';
   }
   initMonthSelector();
-  // Set to 0 to automatically load the newest data (July)
+  // Set to 0 to automatically load the newest data (August)
   document.getElementById('month-selector').value = "0"; 
   
   fetchData();
