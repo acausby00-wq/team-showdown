@@ -110,6 +110,8 @@ tbody tr:last-child td { border-bottom: none; }
 
 .data-error-banner { display: none; align-items: center; gap: 10px; background: var(--red-100); border: 1px solid rgba(220,38,38,.3); color: var(--red-600); border-radius: var(--r); padding: 10px 18px; margin-bottom: 16px; font-size: 13px; font-weight: 500; }
 .data-error-banner.show { display: flex; }
+.data-warn-banner { display: none; align-items: center; gap: 10px; background: var(--gold-100); border: 1px solid rgba(217,119,6,.3); color: var(--gold-600); border-radius: var(--r); padding: 10px 18px; margin-bottom: 16px; font-size: 13px; font-weight: 500; }
+.data-warn-banner.show { display: flex; }
 </style>
 </head>
 <body>
@@ -137,6 +139,7 @@ tbody tr:last-child td { border-bottom: none; }
   </header>
 
   <div class="data-error-banner" id="data-error-banner">⚠ <span id="data-error-text">Couldn't reach the live data source. Check Google Sheet sharing permissions.</span></div>
+  <div class="data-warn-banner" id="data-warn-banner">⚠ <span id="data-warn-text">Couldn't reach the live Store &amp; Rep Goals sheet — one or more metrics are showing fallback numbers, not today's real targets.</span></div>
 
   <div class="tv-grid">
       <div class="tv-sidebar" id="tv-team-section"></div>
@@ -145,41 +148,92 @@ tbody tr:last-child td { border-bottom: none; }
 </div>
 
 <script>
-/* --- DYNAMIC DATA & GOALS LINKS --- */
+/* ==========================================================================
+   CONFIG
+   ==========================================================================
+   To add a new month:
+     1. Duplicate a data tab in the sheet for the new month's rep numbers.
+     2. Add ONE entry to MONTH_DATA below with that month's key/label/gid,
+        marked isLive: true — and flip the previous live month to isLive: false.
+     3. That's it. The now-archived month freezes to whatever's in
+        FALLBACK_GOALS below (update those numbers once, at month-end, to the
+        goals that month actually ran on — they won't change again after that).
+   Only the LIVE month pulls goals from the sheet in real time.
+   ========================================================================== */
+
+const SHEET_ID = "14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI";
+
 const MONTH_DATA = [
   {
+    key: "2026-08",
     label: "August 2026 (Live)",
-    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=2037911790",
-    goalsUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=1928950207&range=H14:Z21",
+    dataUrl: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=2037911790`,
     isLive: true
   },
   {
+    key: "2026-07",
     label: "July 2026 (Final)",
-    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=333252067",
-    goalsUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=333252067",
+    dataUrl: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=333252067`,
     isLive: false
   },
   {
+    key: "2026-06",
     label: "June 2026 (Final)",
-    // Verified June Data Link
-    dataUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=0",
-    goalsUrl: "https://docs.google.com/spreadsheets/d/14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI/export?format=csv&gid=1928950207&range=H14:Z21",
+    dataUrl: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`,
     isLive: false
   }
 ];
 
-// Fallback metrics in case the Goals sheet fails to load
-let METRICS = [
-  { key:"Postpaid Voice", goal:20, teamGoal: 95, teamGoal125: 119, weight:17.5, unit:"", isVol: true },
-  { key:"BTS",            goal:16, teamGoal: 64, teamGoal125: 80, weight:17.5, unit:"", isVol: true },
-  { key:"HSI",            goal:8,  teamGoal: 29, teamGoal125: 36, weight:12.5, unit:"", isVol: true },
-  { key:"APK",            goal:2.0,teamGoal: 2.0, teamGoal125: 2.5, weight:5, unit:"", isVol: false },
-  { key:"CSAT",           goal:9.2,teamGoal: 9.2, teamGoal125: 11.5, weight:10, unit:"", isVol: false },
-  { key:"Visa App Rate",  goal:7.5,teamGoal: 7.5, teamGoal125: 9.3, weight:12.5, unit:"%", isVol: false },
-  { key:"Premium Mix",    goal:80, teamGoal: 80, teamGoal125: 100, weight:12.5, unit:"%", isVol: false },
-  { key:"P360",           goal:40, teamGoal: 40, teamGoal125: 50, weight:12.5, unit:"%", isVol: false }
+// The store's live "Store & Rep Goals" tab. Only fetched for whichever month is isLive: true —
+// archived months use the frozen numbers in FALLBACK_GOALS instead, so they never drift.
+// Store goals (e.g. "Net Postpaid Voice") are read as the 100% team target and doubled into a
+// 125% stretch number. Rep goals (e.g. "Voice") are read as-is — Austin confirmed those are
+// already set at the 125% level on the sheet, not the 100% level.
+const LIVE_GOALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1928950207`;
+
+// Metric definitions that rarely change: display order, composite weighting, unit, and
+// whether a metric is summed across the team (volume) or averaged (rate). Goals themselves
+// come from LIVE_GOALS_URL (for the live month) or FALLBACK_GOALS (for archived months).
+// VAF (Value Added Features / Box) was added at the same 12.5 weight Premium Mix has —
+// weights are normalized against their own total in getWeights(), so adding a 9th metric
+// doesn't throw off the others. VAF assumed to behave like APK (averaged per rep, no % unit)
+// — flag it if that's wrong.
+const METRIC_DEFS = [
+  { key:"Postpaid Voice", weight:17.5, unit:"", isVol:true },
+  { key:"BTS",            weight:17.5, unit:"", isVol:true },
+  { key:"HSI",            weight:12.5, unit:"", isVol:true },
+  { key:"APK",            weight:5,    unit:"", isVol:false },
+  { key:"CSAT",           weight:10,   unit:"", isVol:false },
+  { key:"Visa App Rate",  weight:12.5, unit:"%", isVol:false },
+  { key:"Premium Mix",    weight:12.5, unit:"%", isVol:false },
+  { key:"VAF",            weight:12.5, unit:"",  isVol:false },
+  { key:"P360",           weight:12.5, unit:"%", isVol:false }
 ];
 
+// Frozen goals for archived months, and the emergency fallback if the live sheet is ever
+// unreachable while on the live month. Update these once when a live month closes out.
+// No VAF entry exists yet since June/July never tracked it — that's expected, not a bug.
+const FALLBACK_GOALS = {
+  "Postpaid Voice": { goal:20,  teamGoal:95,  teamGoal125:119 },
+  "BTS":            { goal:16,  teamGoal:64,  teamGoal125:80 },
+  "HSI":            { goal:8,   teamGoal:29,  teamGoal125:36 },
+  "APK":            { goal:2.0, teamGoal:2.0, teamGoal125:2.5 },
+  "CSAT":           { goal:9.2, teamGoal:9.2, teamGoal125:11.5 },
+  "Visa App Rate":  { goal:7.5, teamGoal:7.5, teamGoal125:9.3 },
+  "Premium Mix":    { goal:80,  teamGoal:80,  teamGoal125:100 },
+  "P360":           { goal:40,  teamGoal:40,  teamGoal125:50 }
+};
+
+const TEAM_NAMES = {
+  "Team Dom": { display: "The Vipers", og: "Team Dom" },
+  "Team Clove": { display: "The Phantoms", og: "Team Clove" }
+};
+
+/* ==========================================================================
+   STATE
+   ========================================================================== */
+let METRICS = METRIC_DEFS.map(d => ({ ...d, ...FALLBACK_GOALS[d.key] })); // replaced once goals load
+let liveGoals = {}; // { "Postpaid Voice": {goal, teamGoal, teamGoal125}, ... } — only for the live month
 let repsData = [];
 
 function initMonthSelector() {
@@ -200,70 +254,75 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('theme-toggle').innerHTML = '☀️ Light';
   }
   initMonthSelector();
-  // Set to 0 to automatically load the newest data (August)
-  document.getElementById('month-selector').value = "0"; 
-  
-  fetchData();
-  setInterval(fetchData, 300000); 
-});
+  // July's gid is valid again, so this defaults straight to the newest month.
+  document.getElementById('month-selector').value = "0";
 
-const TEAM_NAMES = {
-  "Team Dom": { display: "The Vipers", og: "Team Dom" },
-  "Team Clove": { display: "The Phantoms", og: "Team Clove" }
-};
+  fetchData();
+  setInterval(fetchData, 300000);
+});
 
 function formatSyncTime(date) { return date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' }); }
 
-function updateSyncUI(ok, source) {
+function updateSyncUI(ok, source, goalsFellBack) {
     const tag = document.getElementById('period-tag');
     const label = document.getElementById('sync-label');
     const banner = document.getElementById('data-error-banner');
-    
+    const warnBanner = document.getElementById('data-warn-banner');
+
+    warnBanner.classList.toggle('show', !!goalsFellBack && ok);
+
     if (!ok) {
         tag.classList.remove('live');
         label.textContent = 'Sync Failed';
         banner.classList.add('show');
         return;
     }
-    
+
     banner.classList.remove('show');
     if (source.isLive) {
         tag.classList.add('live');
-        label.textContent = `Live Sync · Updated ${formatSyncTime(new Date())}`;        
+        label.textContent = `Live Sync · Updated ${formatSyncTime(new Date())}`;
     } else {
         tag.classList.remove('live');
         label.textContent = `Archived Data · Static View`;
     }
 }
 
-// Fetch BOTH sheets simultaneously
+/* ==========================================================================
+   FETCH
+   ========================================================================== */
 async function fetchData() {
     const selectedIndex = document.getElementById('month-selector').value;
     const currentSource = MONTH_DATA[selectedIndex];
-    
+    let goalsFellBack = false;
+
     try {
-        const [dataRes, goalsRes] = await Promise.all([
-            fetch(currentSource.dataUrl),
-            fetch(currentSource.goalsUrl)
-        ]);
-        
-        // Smart Goal Parser: Extracts numbers directly from H14:Z21
-        if (goalsRes.ok && !goalsRes.headers.get("content-type").includes("text/html")) {
-            const goalsText = await goalsRes.text();
-            parseSmartGoalsCSV(goalsText);
+        const dataPromise = fetch(currentSource.dataUrl);
+        const goalsPromise = currentSource.isLive ? fetch(LIVE_GOALS_URL) : Promise.resolve(null);
+        const [dataRes, goalsRes] = await Promise.all([dataPromise, goalsPromise]);
+
+        if (currentSource.isLive) {
+            if (goalsRes && goalsRes.ok && !(goalsRes.headers.get("content-type") || "").includes("text/html")) {
+                parseLiveGoalsCSV(await goalsRes.text());
+            } else {
+                goalsFellBack = true;
+            }
         }
 
-        if (!dataRes.ok || dataRes.headers.get("content-type").includes("text/html")) {
+        METRICS = buildMetricsForMonth(currentSource.isLive);
+        if (currentSource.isLive && METRICS.some(m => m._usedFallback)) goalsFellBack = true;
+
+        if (!dataRes.ok || (dataRes.headers.get("content-type") || "").includes("text/html")) {
             throw new Error("Data sheet restricted or invalid URL.");
         }
-        
+
         const dataText = await dataRes.text();
         parseDataCSV(dataText);
-        
-        updateSyncUI(true, currentSource);
+
+        updateSyncUI(true, currentSource, goalsFellBack);
     } catch (error) {
         console.error("Error fetching data:", error);
-        updateSyncUI(false, currentSource);
+        updateSyncUI(false, currentSource, goalsFellBack);
     }
 }
 
@@ -280,29 +339,112 @@ function parseCSVLine(line) {
     cols.push(cur.trim()); return cols;
 }
 
-function parseSmartGoalsCSV(csvText) {
-    const rows = csvText.trim().split('\n');
-    let rowIndex = 0;
-    
-    for(let i = 0; i < rows.length; i++) {
-        if(!rows[i].trim()) continue;
-        if(rowIndex >= METRICS.length) break; // Only look for our 8 metrics
-        
-        const cols = parseCSVLine(rows[i]);
-        let numbers = [];
-        
-        // Scans the row and strips everything except numbers/decimals to grab your goals
-        cols.forEach(c => {
-            let val = parseFloat(c.replace(/[^0-9.-]+/g,""));
-            if(!isNaN(val)) numbers.push(val);
-        });
-        
-        if(numbers.length >= 1) METRICS[rowIndex].goal = numbers[0];
-        if(numbers.length >= 2) METRICS[rowIndex].teamGoal = numbers[1];
-        if(numbers.length >= 3) METRICS[rowIndex].teamGoal125 = numbers[2];
-        
-        rowIndex++;
+// Parses the live "Store & Rep Goals" tab. This tab isn't a tidy table — it's laid out as two
+// separate blocks on the sheet, so instead of relying on fixed cell coordinates (fragile if a
+// row/column ever shifts), this scans the whole grid for recognizable labels.
+//
+// STORE block: finds the row containing headers like "Net Postpaid Voice", "Net HSI Target",
+// "Value Added Features" — reads the goal numbers from the first non-empty row directly below
+// that header row. Those are 100% team targets, so teamGoal125 = value * 1.25.
+//
+// REP block: finds cells that are an exact match for a metric label ("Voice", "BTS", "HSI",
+// "Accessories", "CSAT", "Visa", "P360") and reads the number in the very next cell. Per Austin,
+// these are already the 125% stretch numbers, so they're used as-is for the individual "goal".
+// "GP" and any other label not in this list is intentionally ignored — not a tracked metric.
+function parseLiveGoalsCSV(csvText) {
+    const rows = csvText.split('\n').map(parseCSVLine);
+    const next = {};
+
+    // --- Store-level (team) goals ---
+    const storeHeaderMap = [
+        { re: /postpaid\s*voice/i, key: "Postpaid Voice" },
+        { re: /bts/i,              key: "BTS" },
+        { re: /hsi/i,              key: "HSI" },
+        { re: /value\s*added\s*features|vaf/i, key: "VAF" },
+        { re: /premium\s*(rate\s*plan\s*)?mix/i, key: "Premium Mix" }
+    ];
+    let storeHeaderRow = -1;
+    const storeCols = {};
+    for (let r = 0; r < rows.length && storeHeaderRow === -1; r++) {
+        for (let c = 0; c < rows[r].length; c++) {
+            const cell = rows[r][c];
+            if (!cell) continue;
+            storeHeaderMap.forEach(h => { if (h.re.test(cell)) { storeCols[h.key] = c; storeHeaderRow = r; } });
+        }
     }
+    if (storeHeaderRow > -1) {
+        for (let r = storeHeaderRow + 1; r < rows.length; r++) {
+            if (!rows[r].some(c => c && c.trim())) continue; // skip blank rows below the header
+            Object.entries(storeCols).forEach(([key, col]) => {
+                const val = parseFloat(rows[r][col]);
+                if (!isNaN(val)) {
+                    next[key] = next[key] || {};
+                    next[key].teamGoal = val;
+                    next[key].teamGoal125 = val * 1.25;
+                }
+            });
+            break;
+        }
+    }
+
+    // --- Rep-level (individual) goals ---
+    const repLabelMap = [
+        { re: /^voice$/i,       key: "Postpaid Voice" },
+        { re: /^bts$/i,         key: "BTS" },
+        { re: /^hsi$/i,         key: "HSI" },
+        { re: /^accessories$/i, key: "APK" },
+        { re: /^csat$/i,        key: "CSAT" },
+        { re: /^visa$/i,        key: "Visa App Rate" },
+        { re: /^p360$/i,        key: "P360" }
+    ];
+    for (let r = 0; r < rows.length; r++) {
+        for (let c = 0; c < rows[r].length; c++) {
+            const cell = (rows[r][c] || '').trim();
+            if (!cell) continue;
+            const match = repLabelMap.find(m => m.re.test(cell));
+            if (!match) continue;
+            const val = parseFloat(rows[r][c + 1]);
+            if (!isNaN(val)) {
+                next[match.key] = next[match.key] || {};
+                next[match.key].goal = val;
+            }
+        }
+    }
+
+    // Any metric with a store number but no individual rep row (VAF, Premium Mix) uses the
+    // store number as-is for the rep goal — per Austin's rule for "no separate rep goal listed".
+    Object.keys(next).forEach(key => {
+        if (next[key].goal === undefined && next[key].teamGoal !== undefined) {
+            next[key].goal = next[key].teamGoal;
+        }
+    });
+
+    if (Object.keys(next).length) liveGoals = next; // keep last-known-good if this parse found nothing
+}
+
+// Combines the static METRIC_DEFS with either the live sheet's goals (for the live month) or
+// the frozen FALLBACK_GOALS (for archived months, or if the live sheet couldn't be reached).
+function buildMetricsForMonth(isLive) {
+    return METRIC_DEFS.map(def => {
+        const src = isLive ? (liveGoals[def.key] || {}) : {};
+        const fb = FALLBACK_GOALS[def.key] || {};
+        // Only the individual (rep) goal is guaranteed to exist for every metric on the live
+        // sheet — either its own row, or the store-number fallback applied in
+        // parseLiveGoalsCSV. Some metrics (APK, CSAT, Visa App Rate, P360) never have a
+        // store-level teamGoal by design, so missing teamGoal alone is NOT a real failure —
+        // only missing goal is.
+        const usedFallback = isLive && (src.goal === undefined);
+        return {
+            key: def.key,
+            weight: def.weight,
+            unit: def.unit,
+            isVol: def.isVol,
+            goal: src.goal ?? fb.goal,
+            teamGoal: src.teamGoal ?? fb.teamGoal,
+            teamGoal125: src.teamGoal125 ?? fb.teamGoal125,
+            _usedFallback: usedFallback
+        };
+    });
 }
 
 function parseDataCSV(csvText) {
