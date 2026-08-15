@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emerald City Sales</title>
+<title>Emerald City Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -139,7 +139,7 @@ tbody tr:last-child td { border-bottom: none; }
   <header class="hero" style="animation-delay:.05s">
     <div class="hero-left">
       <div class="hero-eyebrow">Connectivity Source &mdash; Emerald City</div>
-      <h1 class="hero-title">Team <span>Showdown</span></h1>
+      <h1 class="hero-title">Greenwood<span>Sales</span></h1>
       <div class="hero-sub" id="team-names-sub">The Vipers (Team Dom) &middot; The Phantoms (Team Clove)</div>
     </div>
     <div class="hero-right">
@@ -370,11 +370,12 @@ function parseLiveGoalsCSV(csvText) {
     }
 
     storeHeaderHits.forEach(hit => {
-        // Prefer the row directly under this specific header; fall back to
-        // row 10 (index 9) only if that row actually has a value in this column.
-        let val = rows[hit.row + 1] ? parseFloat(rows[hit.row + 1][hit.col]) : NaN;
-        if (isNaN(val) && rows.length >= 10 && rows[9]) {
-            val = parseFloat(rows[9][hit.col]);
+        // Row 10 (index 9) is where this sheet keeps its store totals — try that
+        // first, and only fall back to the row directly under the header if
+        // row 10 doesn't have a value in this column.
+        let val = (rows.length >= 10 && rows[9]) ? parseFloat(rows[9][hit.col]) : NaN;
+        if (isNaN(val) && rows[hit.row + 1]) {
+            val = parseFloat(rows[hit.row + 1][hit.col]);
         }
         if (!isNaN(val)) {
             next[hit.key] = next[hit.key] || {};
