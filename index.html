@@ -3,592 +3,345 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emerald City Sales</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Emerald City Sales - October</title>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Cinzel:wght@600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0faf5;--card:#fff;--surf:#f4faf7;--lift:#e8f5ef;--orange:#059669;--orange2:#047857;--purple:#0d9488;--green:#10b981;
+--text:#0d2b1f;--muted:#5a8a70;--soft:rgba(5,150,105,.13);--mid:rgba(5,150,105,.24);--shadow:rgba(0,0,0,.08);
+--g1:rgba(16,185,129,.12);--g2:rgba(45,212,191,.08);--glowc:rgba(16,185,129,.18);
+--sel:linear-gradient(135deg,#f59e0b,#fbbf24);--live:linear-gradient(135deg,#059669,#0d9488);--chip:linear-gradient(90deg,#d97706,#f59e0b);--chiptext:#fff;--warn:#f59e0b;
+--fd:'Cinzel',serif;--fh:'Cinzel',serif;--fb:'Outfit',sans-serif;--r:10px;--rl:16px}
+[data-theme="dark"]{--bg:#0b120f;--card:#111c17;--surf:#16241e;--lift:#1d2e26;--orange:#34d399;--orange2:#6ee7b7;--purple:#2dd4bf;--text:#f1f5f9;--muted:#94a3b8;--soft:rgba(52,211,153,.15);--mid:rgba(52,211,153,.3);--shadow:rgba(0,0,0,.4)}
+/* October-only Halloween theme */
+body.halloween{--bg:#0d0a14;--card:#171122;--surf:#1f1730;--lift:#2a1d40;--orange:#ff7a1a;--orange2:#ffa24d;--purple:#a855f7;--green:#7cff6b;
+--text:#f5efe6;--muted:#a99bbd;--soft:rgba(255,122,26,.18);--mid:rgba(255,122,26,.38);--shadow:rgba(0,0,0,.4);
+--g1:rgba(168,85,247,.22);--g2:rgba(255,122,26,.18);--glowc:rgba(255,122,26,.25);
+--sel:linear-gradient(135deg,#ff7a1a,#ffa24d);--live:linear-gradient(135deg,#6d28d9,#a855f7);--chip:linear-gradient(90deg,#ff7a1a,#ffa24d);--chiptext:#150d05;--warn:#ffa24d;--fh:'Creepster','Cinzel',cursive}
+body.halloween .title{font-size:44px;letter-spacing:.06em}
+body.halloween .hero::after{content:'🎃'}
+.hw{display:none}body.halloween .hw{display:inline}
+.row{display:flex;gap:8px;align-items:center}
+.btn{background:var(--card);border:1px solid var(--mid);color:var(--text);border-radius:var(--r);padding:7px 16px;font-family:var(--fb);font-size:13px;cursor:pointer}
+html,body{height:100%}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;overflow:hidden;
+background-image:radial-gradient(ellipse 55% 40% at 12% -5%,var(--g1),transparent 60%),radial-gradient(ellipse 45% 35% at 90% 100%,var(--g2),transparent 60%)}
+.app{max-width:1800px;width:96%;height:100vh;margin:0 auto;padding:18px 0;display:flex;flex-direction:column}
+.hero{position:relative;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;margin-bottom:12px;background:linear-gradient(135deg,var(--card) 55%,var(--lift));border:1px solid var(--mid);border-radius:var(--rl);overflow:hidden;box-shadow:0 4px 20px var(--shadow),0 0 28px var(--glowc);flex:0 0 auto}
+.hero::after{content:none;position:absolute;right:150px;top:-14px;font-size:90px;opacity:.12;pointer-events:none}
+.eyebrow{font-family:var(--fd);font-size:11px;letter-spacing:.3em;color:var(--orange2);text-transform:uppercase;margin-bottom:4px}
+.title{font-family:var(--fh);font-size:32px;letter-spacing:.06em;line-height:1.1}
+.title .gr{background:linear-gradient(90deg,var(--orange),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:14px;color:var(--muted);margin-top:4px}
+.hero-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;position:relative;z-index:1}
+.month-selector{appearance:none;background:var(--sel);color:#150d05;border:none;border-radius:20px;padding:6px 20px;font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.14em;cursor:pointer;text-transform:uppercase;outline:none}
+.period-tag{font-family:var(--fd);font-size:12px;letter-spacing:.14em;background:var(--surf);border:1px solid var(--soft);color:var(--muted);padding:6px 18px;border-radius:20px;font-weight:600;display:flex;align-items:center;gap:8px}
+.period-tag.live{background:var(--live);color:#fff;border:none}
+.dot{width:10px;height:10px;background:#fff;border-radius:50%;animation:pulse 2s infinite;display:none}
+.live .dot{display:block}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
 
-:root {
-  --bg-deep: #f0faf5; --bg-card: #ffffff; --bg-surface: #f4faf7; --bg-lift: #e8f5ef; --bg-hover: #edf8f2;
-  --em-700: #047857; --em-600: #059669; --em-500: #10b981; --em-400: #34d399; --em-300: #6ee7b7; --em-200: #a7f3d0; --em-100: #d1fae5; --em-glow: rgba(16,185,129,.12);
-  --gold-600: #d97706; --gold-400: #f59e0b; --gold-300: #fbbf24; --gold-100: #fef3c7;
-  --teal-600: #0d9488; --teal-400: #2dd4bf; --teal-100: #ccfbf1;
-  --red-600: #dc2626; --red-400: #f87171; --red-100: #fee2e2; --amber-400: #fb923c; --amber-100: #ffedd5;
-  --text-primary: #0d2b1f; --text-secondary: #2d6a4a; --text-muted: #5a8a70; --text-accent: #059669;
-  --border-soft: rgba(5,150,105,.13); --border-mid: rgba(5,150,105,.24); --border-bright: rgba(5,150,105,.45);
-  --font-display: 'Cinzel', serif; --font-body: 'Outfit', sans-serif; --r: 10px; --r-lg: 16px;
-}
-[data-theme="dark"] {
-  --bg-deep: #0b120f; --bg-card: #111c17; --bg-surface: #16241e; --bg-lift: #1d2e26; --bg-hover: #20332a;
-  --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #94a3b8; --text-accent: #34d399;
-  --border-soft: rgba(52, 211, 153, 0.15); --border-mid: rgba(52, 211, 153, 0.3); --em-glow: rgba(52, 211, 153, 0.1);
-}
-html, body { height: 100%; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: var(--font-body); background: var(--bg-deep);
-  background-image: radial-gradient(ellipse 60% 40% at 15% -5%, var(--em-glow) 0%, transparent 60%), radial-gradient(ellipse 40% 30% at 85% 95%, rgba(45,212,191,.06) 0%, transparent 55%), repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(5,150,105,.04) 39px, rgba(5,150,105,.04) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(5,150,105,.04) 39px, rgba(5,150,105,.04) 40px);
-  color: var(--text-primary); font-size: 15px; line-height: 1.5; transition: background-color 0.3s ease, color 0.3s ease;
-  overflow: hidden;
-}
 
-/* ── Shell (Expanded for 1080p TV) ── */
-.app { max-width: 1800px; width: 96%; height: 100vh; margin: 0 auto; padding: 20px 0; display: flex; flex-direction: column; }
+.err,.warn{display:none;gap:10px;border-radius:var(--r);padding:8px 18px;margin-bottom:10px;font-size:13px;font-weight:500;flex:0 0 auto}
+.err{background:#3b1219;border:1px solid #dc2626;color:#fca5a5}.warn{background:#3a2a0b;border:1px solid #d97706;color:#fcd34d}
+.err.show,.warn.show{display:flex}
 
-/* ── Hero Header ── */
-.hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; padding: 18px 32px; margin-bottom: 14px; background: linear-gradient(135deg, var(--bg-card) 60%, var(--bg-lift)); border: 1px solid var(--border-mid); border-radius: var(--r-lg); overflow: hidden; animation: fadeUp .5s ease both; box-shadow: 0 4px 20px rgba(0,0,0,.12); flex: 0 0 auto; }
-.hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--em-glow) 0%, transparent 60%); pointer-events: none; }
-.hero::after { content: 'EMERALD CITY'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%) rotate(90deg); font-family: var(--font-display); font-size: 12px; letter-spacing: .35em; color: rgba(5,150,105,.07); pointer-events: none; white-space: nowrap; }
-.hero-left { position: relative; z-index: 1; }
-.hero-eyebrow { font-family: var(--font-display); font-size: 11px; letter-spacing: .3em; color: var(--em-400); text-transform: uppercase; margin-bottom: 8px; }
-.hero-title { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1.15; letter-spacing: .02em; }
-.hero-title span { background: linear-gradient(90deg, var(--em-600), var(--teal-600)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.hero-sub { margin-top: 8px; font-size: 14px; color: var(--text-muted); }
-.hero-right { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
-.header-actions { display: flex; gap: 8px; align-items: center; }
+.grid{display:grid;grid-template-columns:32% 66%;grid-template-rows:minmax(0,1fr);justify-content:space-between;gap:16px;flex:1 1 auto;min-height:0}
+@media(max-width:1200px){.grid{grid-template-columns:1fr}}
+.side,.main{display:flex;flex-direction:column;min-height:0;gap:12px}
+.card{background:var(--card);border:1px solid var(--soft);border-radius:var(--rl);padding:14px 20px;display:flex;flex-direction:column;flex:0 0 auto;min-height:0;box-shadow:0 4px 14px var(--shadow)}
+.card.flex{flex:1 1 auto}
+.chead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid var(--soft);padding-bottom:6px}
+.lbl{font-family:var(--fd);font-size:12px;letter-spacing:.22em;color:var(--orange2);text-transform:uppercase}
+.fsb{background:var(--surf);border:1px solid var(--soft);color:var(--muted);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px}
+.card:fullscreen{padding:48px 56px;background:var(--bg)}.card:fullscreen table{font-size:1.2em}
 
-/* ── Month Selector Select Box ── */
-.month-selector {
-  appearance: none; background: linear-gradient(135deg, var(--gold-400), var(--gold-300));
-  color: #0a0f0d; border: none; border-radius: 20px; padding: 6px 36px 6px 18px;
-  font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: .15em;
-  cursor: pointer; text-transform: uppercase;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%230a0f0d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat; background-position: right 12px center; background-size: 10px auto;
-  outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: opacity 0.2s;
-}
-.month-selector:hover { opacity: 0.9; }
+.teams{display:grid;gap:10px}
+.team{background:var(--surf);border:1px solid var(--soft);border-radius:var(--rl);padding:12px 18px;position:relative;overflow:hidden}
+.team.first{border-color:var(--orange);box-shadow:0 0 18px var(--glowc)}
+.team::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--purple)}.team.first::before{background:linear-gradient(90deg,var(--orange),var(--orange2))}
+.tl{font-family:var(--fd);font-size:11px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase}
+.tn{font-family:var(--fd);font-size:16px;font-weight:600;margin:4px 0}
+.ts{font-size:32px;font-weight:300;line-height:1}.first .ts{color:var(--orange2)}
+.chip{display:inline-block;font-family:var(--fd);font-size:10px;letter-spacing:.2em;background:var(--chip);color:var(--chiptext);padding:4px 14px;border-radius:20px;font-weight:700;margin-top:8px}
+.note{font-size:13px;color:var(--muted);margin-top:8px}
 
-.period-tag { font-family: var(--font-display); font-size: 12px; letter-spacing: .15em; background: var(--bg-surface); border: 1px solid var(--border-soft); color: var(--text-muted); padding: 6px 18px; border-radius: 20px; font-weight: 600; display:flex; align-items:center; gap:8px; transition: all 0.3s ease; }
-.period-tag.live { background: linear-gradient(135deg, var(--em-600), var(--teal-600)); color: white; border: none; box-shadow: 0 2px 10px var(--em-glow);}
-.sync-dot { width: 10px; height: 10px; background: #fff; border-radius: 50%; animation: pulse 2s infinite; display: none;}
-.period-tag.live .sync-dot { display: block; }
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 8px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
-.btn-action { background: var(--bg-card); border: 1px solid var(--border-mid); color: var(--text-primary); border-radius: var(--r); padding: 8px 18px; font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; letter-spacing: .03em; text-decoration: none; display: inline-block; }
-
-/* ── TV Grid Layout ── */
-.tv-grid { display: grid; grid-template-columns: 32% 66%; grid-template-rows: minmax(0, 1fr); justify-content: space-between; align-items: stretch; gap: 16px; flex: 1 1 auto; min-height: 0; }
-@media (max-width: 1200px) { .tv-grid { grid-template-columns: 1fr; } } 
-.tv-sidebar, .tv-main { display: flex; flex-direction: column; min-height: 0; gap: 14px; }
-
-/* ── Cards ── */
-.card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 16px 20px; margin-bottom: 0; animation: fadeUp .4s ease both; box-shadow: 0 4px 12px rgba(0,0,0,.08); display: flex; flex-direction: column; flex: 0 0 auto; min-height: 0; }
-.card.card-flex { flex: 1 1 auto; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
-.card-header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--border-soft); padding-bottom: 6px; flex: 0 0 auto; }
-.card-header-row .section-lbl { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-.fullscreen-btn { background: var(--bg-surface); border: 1px solid var(--border-soft); color: var(--text-muted); border-radius: 8px; width: 30px; height: 30px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; transition: all .2s; }
-.fullscreen-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-mid); }
-.card:fullscreen, .card:-webkit-full-screen { padding: 48px 56px; background: var(--bg-deep); }
-.card:fullscreen table, .card:-webkit-full-screen table { font-size: 1.2em; }
-.card:fullscreen .team-summary, .card:-webkit-full-screen .team-summary { max-width: 900px; margin: 0 auto; width: 100%; }
-
-/* ── Team Summary Cards ── */
-.team-summary { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 0; }
-.team-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 14px 18px; position: relative; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.07); }
-.team-card.first { border-color: var(--border-mid); background: linear-gradient(135deg, var(--bg-card) 60%, var(--bg-lift)); }
-.team-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
-.team-card.first::before { background: linear-gradient(90deg, var(--em-600), var(--teal-400)); } .team-card.second::before { background: linear-gradient(90deg, #a7f3d0, #6ee7b7); }
-.team-glow { position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, var(--em-glow) 0%, transparent 70%); pointer-events: none; }
-.team-label { font-family: var(--font-display); font-size: 11px; letter-spacing: .25em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-.team-name-display { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; letter-spacing: .04em; }
-.team-score-big { font-family: var(--font-body); font-size: 30px; font-weight: 300; line-height: 1; }
-.team-card.first .team-score-big { color: var(--em-500); } .team-card.second .team-score-big { color: var(--text-muted); }
-.team-rank-note { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
-.leading-chip { display: inline-block; font-family: var(--font-display); font-size: 10px; letter-spacing: .2em; background: linear-gradient(90deg, var(--gold-600), var(--gold-400)); color: white; padding: 4px 14px; border-radius: 20px; font-weight: 700; margin-top: 8px; }
-
-/* ── Tables ── */
-.table-wrap { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--border-mid) transparent; }
-.table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
-.table-wrap::-webkit-scrollbar-track { background: transparent; }
-.table-wrap::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead th { padding: 8px 10px; font-family: var(--font-display); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; background: var(--bg-surface); border-bottom: 1px solid var(--border-soft); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
-thead th.center { text-align: center; }
-tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border-soft); vertical-align: middle; color: var(--text-primary); }
-tbody td.center { text-align: center; } 
-tbody tr:last-child td { border-bottom: none; }
-.rbadge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 600; font-size: 13px; font-family: var(--font-body); background: var(--bg-lift); color: var(--text-muted); }
-.rbadge.gold { background: linear-gradient(135deg,#d97706,#fbbf24); color: white; } .rbadge.silver { background: linear-gradient(135deg,#6b7280,#9ca3af); color: white; } .rbadge.bronze { background: linear-gradient(135deg,#b45309,#d97706); color: white; }
-.pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; font-family: var(--font-body); }
-.pill-green { background: rgba(209,250,229,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); } .pill-yellow { background: rgba(254,243,199,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); } .pill-red { background: rgba(254,226,226,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-.tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .06em; padding: 3px 10px; border-radius: 10px; font-family: var(--font-display); }
-.tag-dom { background: rgba(204,251,241,0.15); color: #14b8a6; border: 1px solid rgba(20,184,166,0.3); } .tag-clove { background: rgba(254,243,199,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-.cg { color: #10b981; font-weight: 500; } .cy { color: #f59e0b; font-weight: 500; } .cr { color: #ef4444; font-weight: 500; }
-.c-gap { color: #ef4444; font-size: 13px; font-weight: 600; font-family: var(--font-body); } .c-focus { color: #ef4444; font-size: 13px; font-weight: 600; }
-
-.section-lbl { font-family: var(--font-display); font-size: 12px; letter-spacing: .22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 8px;}
-.goal-125 { color: var(--gold-600); font-weight: 600; font-size: 11px; margin-left: 6px;}
-
-.data-error-banner { display: none; align-items: center; gap: 10px; background: var(--red-100); border: 1px solid rgba(220,38,38,.3); color: var(--red-600); border-radius: var(--r); padding: 10px 18px; margin-bottom: 16px; font-size: 13px; font-weight: 500; flex: 0 0 auto; }
-.data-error-banner.show { display: flex; }
-.data-warn-banner { display: none; align-items: center; gap: 10px; background: var(--gold-100); border: 1px solid rgba(217,119,6,.3); color: var(--gold-600); border-radius: var(--r); padding: 10px 18px; margin-bottom: 16px; font-size: 13px; font-weight: 500; flex: 0 0 auto; }
-.data-warn-banner.show { display: flex; }
+.tw{flex:1 1 auto;min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:var(--mid) transparent}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:8px 10px;font-family:var(--fd);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);background:var(--surf);border-bottom:1px solid var(--soft);white-space:nowrap;position:sticky;top:0;z-index:1}
+th.c,td.c{text-align:center}
+td{padding:8px 10px;border-bottom:1px solid var(--soft);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.rb{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-weight:600;background:var(--lift);color:var(--muted)}
+.rb.g{background:linear-gradient(135deg,#d97706,#fbbf24);color:#fff}.rb.s{background:linear-gradient(135deg,#6b7280,#9ca3af);color:#fff}.rb.b{background:linear-gradient(135deg,#b45309,#d97706);color:#fff}
+.pill{display:inline-block;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600}
+.pg{background:rgba(124,255,107,.12);color:var(--green);border:1px solid rgba(124,255,107,.35)}.py{background:rgba(255,162,77,.12);color:var(--warn);border:1px solid rgba(255,162,77,.35)}.pr{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.35)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;font-family:var(--fd)}
+.t-dom{background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.4)}.t-clove{background:rgba(255,122,26,.15);color:var(--warn);border:1px solid rgba(255,122,26,.4)}
+.cg{color:var(--green);font-weight:500}.cy{color:var(--warn);font-weight:500}.cr{color:#f87171;font-weight:500}
+.g125{color:var(--orange);font-weight:600;font-size:11px}
+.focus,.gap{color:#f87171;font-weight:600}
 </style>
 </head>
 <body>
-<script>
-  (function() {
-    if (localStorage.getItem('ec_theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); }
-  })();
-</script>
-
 <div class="app">
-  <header class="hero" style="animation-delay:.05s">
-    <div class="hero-left">
-      <div class="hero-eyebrow">Connectivity Source &mdash; Emerald City</div>
-      <h1 class="hero-title">Greenwood <span>Sales</span></h1>
-      <div class="hero-sub" id="team-names-sub">The Vipers (Team Dom) &middot; The Phantoms (Team Clove)</div>
+  <header class="hero">
+    <div>
+      <div class="eyebrow">Connectivity Source &mdash; Emerald City</div>
+      <h1 class="title"><span class="hw">🎃 </span>Greenwood <span class="gr">Sales</span><span class="hw"> 👻</span></h1>
+      <div class="sub">The Vipers (Team Dom) &middot; The Phantoms (Team Clove)</div>
     </div>
     <div class="hero-right">
-      <div class="header-actions">
-        <!-- Month Selector Dropdown -->
-        <select id="month-selector" class="month-selector" onchange="fetchData()"></select>
-        <button class="btn-action" id="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
-      </div>
-      <span class="period-tag" id="period-tag"><div class="sync-dot"></div> <span id="sync-label">Loading Data...</span></span>
+      <div class="row"><select id="month-selector" class="month-selector" onchange="fetchData()"></select><button class="btn" id="theme-toggle" onclick="toggleTheme()">🌙 Dark</button></div>
+      <span class="period-tag" id="period-tag"><div class="dot"></div><span id="sync-label">Loading Data...</span></span>
     </div>
   </header>
 
-  <div class="data-error-banner" id="data-error-banner">⚠ <span id="data-error-text">Couldn't reach the live data source. Check Google Sheet sharing permissions.</span></div>
-  <div class="data-warn-banner" id="data-warn-banner">⚠ <span id="data-warn-text">Couldn't reach the live Store &amp; Rep Goals sheet — one or more metrics are showing fallback numbers, not today's real targets.</span></div>
 
-  <div class="tv-grid">
-      <div class="tv-sidebar" id="tv-team-section"></div>
-      <div class="tv-main" id="tv-leaderboard-section"></div>
+  <div class="err" id="err">⚠ <span>Couldn't reach the live data source. Check Google Sheet sharing permissions.</span></div>
+  <div class="warn" id="warn">⚠ <span id="warn-text"></span></div>
+
+  <div class="grid">
+    <div class="side" id="side"></div>
+    <div class="main" id="main"></div>
   </div>
 </div>
 
 <script>
-/* ==========================================================================
-   CONFIG
-   ========================================================================== */
-
+/* ===== CONFIG ===== */
 const SHEET_ID = "14NRqBdyJUhgyLaszqpiRjxiE7oIOx-kpXpF-7KMvdFI";
+const OCT_GID = "1979567923"; // October Actuals tab
+const csv = gid => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
 
 const MONTH_DATA = [
-  {
-    key: "2026-08",
-    label: "August 2026 (Live)",
-    dataUrl: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=2037911790`,
-    isLive: true
-  },
-  {
-    key: "2026-07",
-    label: "July 2026 (Final)",
-    dataUrl: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=333252067`,
-    isLive: false
-  },
-  {
-    key: "2026-06",
-    label: "June 2026 (Final)",
-    dataUrl: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`,
-    isLive: false
-  }
+  { label: "October 2026 (Live)",  dataUrl: csv(1979567923),     isLive: true, theme: "halloween" },
+  { label: "August 2026 (Final)",  dataUrl: csv("2037911790"), isLive: false },
+  { label: "July 2026 (Final)",    dataUrl: csv("333252067"),  isLive: false },
+  { label: "June 2026 (Final)",    dataUrl: csv("0"),          isLive: false }
 ];
-
-const LIVE_GOALS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1928950207`;
+const LIVE_GOALS_URL = csv("1502188895");
 
 const METRIC_DEFS = [
-  { key:"Postpaid Voice", weight:17.5, unit:"", isVol:true },
-  { key:"BTS",            weight:17.5, unit:"", isVol:true },
-  { key:"HSI",            weight:12.5, unit:"", isVol:true },
-  { key:"APK",            weight:5,    unit:"", isVol:false },
-  { key:"CSAT",           weight:10,   unit:"", isVol:false },
-  { key:"Visa App Rate",  weight:12.5, unit:"%", isVol:false },
-  { key:"Premium Mix",    weight:12.5, unit:"%", isVol:false },
-  { key:"VAF",            weight:12.5, unit:"$",  isVol:false },
-  { key:"P360",           weight:12.5, unit:"%", isVol:false }
+  {key:"Postpaid Voice",weight:17.5,unit:"",isVol:true},{key:"BTS",weight:17.5,unit:"",isVol:true},
+  {key:"HSI",weight:12.5,unit:"",isVol:true},{key:"APK",weight:5,unit:"",isVol:false},
+  {key:"CSAT",weight:10,unit:"",isVol:false},{key:"Visa App Rate",weight:12.5,unit:"%",isVol:false},
+  {key:"Premium Mix",weight:12.5,unit:"%",isVol:false},{key:"VAF",weight:12.5,unit:"$",isVol:false},
+  {key:"P360",weight:12.5,unit:"%",isVol:false}
 ];
-
 const FALLBACK_GOALS = {
-  "Postpaid Voice": { goal:20,  teamGoal:95,  teamGoal125:119 },
-  "BTS":            { goal:16,  teamGoal:64,  teamGoal125:80 },
-  "HSI":            { goal:8,   teamGoal:29,  teamGoal125:36 },
-  "APK":            { goal:2.0, teamGoal:2.0, teamGoal125:2.5 },
-  "CSAT":           { goal:9.2, teamGoal:9.2, teamGoal125:11.5 },
-  "Visa App Rate":  { goal:7.5, teamGoal:7.5, teamGoal125:9.3 },
-  "Premium Mix":    { goal:80,  teamGoal:80,  teamGoal125:100 },
-  "VAF":            { goal:0,   teamGoal:0,   teamGoal125:0 }, // TODO: no fallback existed for VAF before — replace 0s with real target numbers
-  "P360":           { goal:40,  teamGoal:40,  teamGoal125:50 }
+  "Postpaid Voice":{goal:20,teamGoal:95,teamGoal125:119},"BTS":{goal:16,teamGoal:64,teamGoal125:80},
+  "HSI":{goal:8,teamGoal:29,teamGoal125:36},"APK":{goal:2.0,teamGoal:2.0,teamGoal125:2.5},
+  "CSAT":{goal:9.2,teamGoal:9.2,teamGoal125:11.5},"Visa App Rate":{goal:7.5,teamGoal:7.5,teamGoal125:9.3},
+  "Premium Mix":{goal:80,teamGoal:80,teamGoal125:100},
+  "VAF":{goal:19,teamGoal:19,teamGoal125:21}, // TODO: replace 0s with real VAF targets
+  "P360":{goal:40,teamGoal:40,teamGoal125:50}
 };
+const TEAM_NAMES = {"Team Dom":{display:"The Vipers",og:"Team Dom"},"Team Clove":{display:"The Phantoms",og:"Team Clove"}};
 
-const TEAM_NAMES = {
-  "Team Dom": { display: "The Vipers", og: "Team Dom" },
-  "Team Clove": { display: "The Phantoms", og: "Team Clove" }
-};
-
-/* ==========================================================================
-   STATE
-   ========================================================================== */
-let METRICS = METRIC_DEFS.map(d => ({ ...d, ...FALLBACK_GOALS[d.key] }));
-let liveGoals = {}; 
-let repsData = [];
-
-function initMonthSelector() {
-  const selector = document.getElementById('month-selector');
-  selector.innerHTML = MONTH_DATA.map((m, i) => `<option value="${i}">${m.label}</option>`).join("");
-}
-
-function toggleTheme() {
-  const html = document.documentElement;
-  const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', newTheme);
-  localStorage.setItem('ec_theme', newTheme);
-  document.getElementById('theme-toggle').innerHTML = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
-}
+/* ===== STATE ===== */
+let METRICS = METRIC_DEFS.map(d => ({...d, ...FALLBACK_GOALS[d.key]}));
+let liveGoals = {}, repsData = [];
+const $ = id => document.getElementById(id);
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (document.documentElement.getAttribute('data-theme') === 'dark') {
-    document.getElementById('theme-toggle').innerHTML = '☀️ Light';
-  }
-  initMonthSelector();
-  document.getElementById('month-selector').value = "0";
-
+  $('month-selector').innerHTML = MONTH_DATA.map((m,i) => `<option value="${i}">${m.label}</option>`).join("");
   fetchData();
   setInterval(fetchData, 300000);
 });
 
-function formatSyncTime(date) { return date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+function applyTheme(src) {
+  const hw = src.theme === 'halloween';
+  document.body.classList.toggle('halloween', hw);
+  $('theme-toggle').style.display = hw ? 'none' : '';
+}
+function toggleTheme() {
+  const h = document.documentElement, t = h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  h.setAttribute('data-theme', t);
+  try { localStorage.setItem('ec_theme', t); } catch (e) {}
+  $('theme-toggle').textContent = t === 'dark' ? '☀️ Light' : '🌙 Dark';
+}
+(function () { try { if (localStorage.getItem('ec_theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); window.addEventListener('DOMContentLoaded', () => $('theme-toggle').textContent = '☀️ Light'); } } catch (e) {} })();
 
-function updateSyncUI(ok, source, goalsFellBack, fallbackKeys) {
-    const tag = document.getElementById('period-tag');
-    const label = document.getElementById('sync-label');
-    const banner = document.getElementById('data-error-banner');
-    const warnBanner = document.getElementById('data-warn-banner');
-    const warnText = document.getElementById('data-warn-text');
-
-    warnBanner.classList.toggle('show', !!goalsFellBack && ok);
-    if (goalsFellBack && ok) {
-        warnText.textContent = fallbackKeys && fallbackKeys.length
-            ? `Couldn't read live targets for: ${fallbackKeys.join(", ")} — showing fallback numbers for those metrics only.`
-            : `Couldn't reach the live Store & Rep Goals sheet — one or more metrics are showing fallback numbers, not today's real targets.`;
-        if (fallbackKeys && fallbackKeys.length) console.warn("Goals sheet: fell back for", fallbackKeys);
-    }
-
-    if (!ok) {
-        tag.classList.remove('live');
-        label.textContent = 'Sync Failed';
-        banner.classList.add('show');
-        return;
-    }
-
-    banner.classList.remove('show');
-    if (source.isLive) {
-        tag.classList.add('live');
-        label.textContent = `Live Sync · Updated ${formatSyncTime(new Date())}`;
-    } else {
-        tag.classList.remove('live');
-        label.textContent = `Archived Data · Static View`;
-    }
+function updateSyncUI(ok, src, fellBack, keys) {
+  const tag = $('period-tag'), label = $('sync-label');
+  $('warn').classList.toggle('show', !!fellBack && ok);
+  if (fellBack && ok) $('warn-text').textContent = keys && keys.length
+    ? `Couldn't read live targets for: ${keys.join(", ")} — showing fallback numbers for those metrics only.`
+    : `Couldn't reach the live Store & Rep Goals sheet — showing fallback numbers, not today's real targets.`;
+  if (!ok) { tag.classList.remove('live'); label.textContent = 'Sync Failed'; $('err').classList.add('show'); return; }
+  $('err').classList.remove('show');
+  if (src.isLive) { tag.classList.add('live'); label.textContent = `Live Sync · Updated ${new Date().toLocaleString('en-US',{hour:'numeric',minute:'2-digit'})}`; }
+  else { tag.classList.remove('live'); label.textContent = 'Archived Data · Static View'; }
 }
 
-/* ==========================================================================
-   FETCH
-   ========================================================================== */
+/* ===== FETCH ===== */
 async function fetchData() {
-    const selectedIndex = document.getElementById('month-selector').value;
-    const currentSource = MONTH_DATA[selectedIndex];
-    let goalsFellBack = false;
-
-    try {
-        const dataPromise = fetch(currentSource.dataUrl);
-        const goalsPromise = currentSource.isLive ? fetch(LIVE_GOALS_URL) : Promise.resolve(null);
-        const [dataRes, goalsRes] = await Promise.all([dataPromise, goalsPromise]);
-
-        if (currentSource.isLive) {
-            if (goalsRes && goalsRes.ok && !(goalsRes.headers.get("content-type") || "").includes("text/html")) {
-                parseLiveGoalsCSV(await goalsRes.text());
-            } else {
-                goalsFellBack = true;
-            }
-        }
-
-        METRICS = buildMetricsForMonth(currentSource.isLive);
-        let fallbackKeys = [];
-        if (currentSource.isLive) {
-            fallbackKeys = METRICS.filter(m => m._usedFallback).map(m => m.key);
-            if (fallbackKeys.length) goalsFellBack = true;
-        }
-
-        if (!dataRes.ok || (dataRes.headers.get("content-type") || "").includes("text/html")) {
-            throw new Error("Data sheet restricted or invalid URL.");
-        }
-
-        const dataText = await dataRes.text();
-        parseDataCSV(dataText);
-
-        updateSyncUI(true, currentSource, goalsFellBack, fallbackKeys);
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        updateSyncUI(false, currentSource, goalsFellBack);
+  const src = MONTH_DATA[$('month-selector').value];
+  applyTheme(src);
+  let fellBack = false;
+  try {
+    const [dataRes, goalsRes] = await Promise.all([fetch(src.dataUrl), src.isLive ? fetch(LIVE_GOALS_URL) : Promise.resolve(null)]);
+    if (src.isLive) {
+      if (goalsRes && goalsRes.ok && !(goalsRes.headers.get("content-type")||"").includes("text/html")) parseGoals(await goalsRes.text());
+      else fellBack = true;
     }
+    METRICS = buildMetrics(src.isLive);
+    let keys = [];
+    if (src.isLive) { keys = METRICS.filter(m => m._fb).map(m => m.key); if (keys.length) fellBack = true; }
+    if (!dataRes.ok || (dataRes.headers.get("content-type")||"").includes("text/html")) throw new Error("Data sheet restricted or invalid URL.");
+    parseData(await dataRes.text());
+    updateSyncUI(true, src, fellBack, keys);
+  } catch (e) { console.error(e); updateSyncUI(false, src, fellBack); }
 }
 
-function parseCSVLine(line) {
-    const cols = []; let cur = ''; let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') {
-            if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
-            else { inQuotes = !inQuotes; }
-        } else if (ch === ',' && !inQuotes) { cols.push(cur.trim()); cur = ''; } 
-        else { cur += ch; }
-    }
-    cols.push(cur.trim()); return cols;
-}
-
-function parseLiveGoalsCSV(csvText) {
-    const rows = csvText.split('\n').map(parseCSVLine);
-    const next = {};
-
-    // --- Store-level (team) goals ---
-    // Each header is located independently (not just the first row that matches
-    // ANY header), so metrics whose header sits on a different row than the
-    // others — e.g. VAF, Premium Mix — are no longer silently dropped.
-    const storeHeaderMap = [
-        { re: /postpaid\s*voice/i, key: "Postpaid Voice" },
-        { re: /bts/i,              key: "BTS" },
-        { re: /hsi/i,              key: "HSI" },
-        { re: /value\s*added\s*features|vaf/i, key: "VAF" },
-        { re: /premium\s*(rate\s*plan\s*)?mix/i, key: "Premium Mix" },
-        { re: /apk/i,              key: "APK" },
-        { re: /csat/i,             key: "CSAT" },
-        { re: /visa/i,             key: "Visa App Rate" },
-        { re: /p360/i,             key: "P360" }
-    ];
-
-    const storeHeaderHits = []; // { key, row, col }
-    for (let r = 0; r < rows.length; r++) {
-        for (let c = 0; c < rows[r].length; c++) {
-            const cell = rows[r][c];
-            if (!cell) continue;
-            storeHeaderMap.forEach(h => { if (h.re.test(cell)) storeHeaderHits.push({ key: h.key, row: r, col: c }); });
-        }
-    }
-
-    storeHeaderHits.forEach(hit => {
-        // Row 10 (index 9) is where this sheet keeps its store totals — try that
-        // first, and only fall back to the row directly under the header if
-        // row 10 doesn't have a value in this column.
-        let val = (rows.length >= 10 && rows[9]) ? parseFloat(rows[9][hit.col]) : NaN;
-        if (isNaN(val) && rows[hit.row + 1]) {
-            val = parseFloat(rows[hit.row + 1][hit.col]);
-        }
-        if (!isNaN(val)) {
-            next[hit.key] = next[hit.key] || {};
-            next[hit.key].teamGoal = val;
-            next[hit.key].teamGoal125 = val * 1.25;
-        }
-    });
-
-    // --- Rep-level (individual) goals ---
-    const repLabelMap = [
-        { re: /^voice$/i,       key: "Postpaid Voice" },
-        { re: /^bts$/i,         key: "BTS" },
-        { re: /^hsi$/i,         key: "HSI" },
-        { re: /^accessories$/i, key: "APK" },
-        { re: /^csat$/i,        key: "CSAT" },
-        { re: /^visa$/i,        key: "Visa App Rate" },
-        { re: /^p360$/i,        key: "P360" }
-    ];
-    for (let r = 0; r < rows.length; r++) {
-        for (let c = 0; c < rows[r].length; c++) {
-            const cell = (rows[r][c] || '').trim();
-            if (!cell) continue;
-            const match = repLabelMap.find(m => m.re.test(cell));
-            if (!match) continue;
-            const val = parseFloat(rows[r][c + 1]);
-            if (!isNaN(val)) {
-                next[match.key] = next[match.key] || {};
-                next[match.key].goal = val;
-            }
-        }
-    }
-
-    Object.keys(next).forEach(key => {
-        if (next[key].goal === undefined && next[key].teamGoal !== undefined) {
-            next[key].goal = next[key].teamGoal;
-        }
-    });
-
-    if (Object.keys(next).length) liveGoals = next;
-}
-
-function buildMetricsForMonth(isLive) {
-    return METRIC_DEFS.map(def => {
-        const src = isLive ? (liveGoals[def.key] || {}) : {};
-        const fb = FALLBACK_GOALS[def.key] || {};
-        const usedFallback = isLive && (src.goal === undefined);
-        return {
-            key: def.key,
-            weight: def.weight,
-            unit: def.unit,
-            isVol: def.isVol,
-            goal: src.goal ?? fb.goal,
-            teamGoal: src.teamGoal ?? fb.teamGoal,
-            teamGoal125: src.teamGoal125 ?? fb.teamGoal125,
-            _usedFallback: usedFallback
-        };
-    });
-}
-
-function parseDataCSV(csvText) {
-    const rows = csvText.trim().split('\n');
-    const headers = parseCSVLine(rows[0]);
-    repsData = [];
-    
-    for(let i = 1; i < rows.length; i++) {
-        if(!rows[i].trim()) continue;
-        const cols = parseCSVLine(rows[i]);
-        let rep = { name: cols[0], team: cols[1], data: {} };
-        
-        METRICS.forEach(m => {
-            let index = headers.indexOf(m.key);
-            rep.data[m.key] = index > -1 ? (parseFloat(cols[index]) || 0) : 0;
-        });
-        
-        if(rep.name && rep.team) { repsData.push(processRep(rep)); }
-    }
-    
-    repsData.sort((a,b) => b.composite - a.composite);
-    renderYodeckLayout();
-}
-
-function getWeights() {
-  const total = METRICS.reduce((a,b)=>a+b.weight,0)||1;
-  return METRICS.map(m => m.weight/total);
-}
-
-function processRep(rawRep) {
-  const weights = getWeights();
-  let composite=0, lowestPct=Infinity, focusArea="", focusGap=0;
-  const mp = {};
-  
-  METRICS.forEach((m,i)=>{
-    const val = rawRep.data[m.key];
-    const pct = m.goal > 0 ? (val/m.goal)*100 : 0;
-    composite += pct*weights[i];
-    mp[m.key] = {pct, val, goal:m.goal, unit:m.unit};
-    if(pct < lowestPct){ lowestPct=pct; focusArea=m.key; focusGap=m.goal-val; }
-  });
-  
-  return {name: rawRep.name, team: rawRep.team, composite, focusArea, focusGap, mp};
-}
-
-/* ── Visual Helpers ── */
-function pillCls(s){ return s>=100?"pill-green":s>=80?"pill-yellow":"pill-red"; }
-function colorCls(p){ return p>=100?"cg":p>=80?"cy":"cr"; }
-function rbadge(i){ const c=i===0?"gold":i===1?"silver":i===2?"bronze":""; return `<span class="rbadge ${c}">${i+1}</span>`; }
-function teamTag(t){ const cls = t==="Team Dom"?"tag-dom":"tag-clove"; const d = TEAM_NAMES[t] ? TEAM_NAMES[t].display : t; return `<span class="tag ${cls}">${d}</span>`; }
-function teamFullLabel(t){ const tn=TEAM_NAMES[t] || {display: t, og: t}; return `${tn.display} <span style="font-size:11px;color:var(--text-muted)">(${tn.og})</span>`; }
-function formatMetricValue(val, unit){
-  if (val === undefined || val === null || isNaN(val)) return val;
-  if (unit === "$") return `$${Number(val).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
-  return `${val}${unit || ""}`;
-}
-function cardHeader(title, cardId){
-  return `<div class="card-header-row"><div class="section-lbl">${title}</div><button class="fullscreen-btn" onclick="toggleCardFullscreen('${cardId}')" title="Full screen this section">⛶</button></div>`;
-}
-
-/* ── Render Yodeck Layout ── */
-function renderYodeckLayout() {
-  if (repsData.length === 0) return;
-  const weights = getWeights();
-  const teams={};
-  const storeRawSum={};
-  
-  repsData.forEach(r=>{
-    if(!teams[r.team]) teams[r.team]={reps:[], rawSum:{}};
-    teams[r.team].reps.push(r);
-    METRICS.forEach(m=>{
-      teams[r.team].rawSum[m.key] = (teams[r.team].rawSum[m.key]||0) + r.mp[m.key].val;
-      storeRawSum[m.key] = (storeRawSum[m.key]||0) + r.mp[m.key].val;
-    });
-  });
-
-  const tArr = Object.keys(teams).map(t=>{
-    const tm = teams[t]; let teamComposite = 0; const mtPct = {};
-    METRICS.forEach((m, i) => {
-      let teamActual = m.isVol ? tm.rawSum[m.key] : (tm.rawSum[m.key] / tm.reps.length);
-      let pct = m.teamGoal > 0 ? (teamActual / m.teamGoal) * 100 : 0;
-      mtPct[m.key] = pct; teamComposite += pct * weights[i];
-    });
-    return { name:t, avg: teamComposite, reps: tm.reps, mt: mtPct, count: tm.reps.length };
-  }).sort((a,b)=>b.avg-a.avg);
-
-  let tHTML = `<div class="card card-fixed" id="card-team-standings">${cardHeader("Team Standings", "card-team-standings")}<div class="team-summary">`;
-  tArr.forEach((t,i)=>{
-    tHTML+=`<div class="team-card ${i===0?"first":"second"}"><div class="team-glow"></div><div class="team-label">Team</div><div class="team-name-display">${teamFullLabel(t.name)}</div><div class="team-score-big">${t.avg.toFixed(1)}<span style="font-size:24px">%</span></div>${i===0?`<div><span class="leading-chip">LEADING</span></div>`:`<div class="team-rank-note">#2 this period</div>`}</div>`;
-  });
-  tHTML += `</div></div>`;
-
-  tHTML += `<div class="card card-fixed" id="card-store-total">${cardHeader("Full Store — Actual vs Target", "card-store-total")}<div class="table-wrap"><table><thead><tr><th>Store</th>`;
-  METRICS.forEach(m => {
-    tHTML += `<th class="center">${m.key}<br><span class="goal-125">(125%: ${formatMetricValue(m.teamGoal125, m.unit)})</span></th>`;
-  });
-  tHTML += `</tr></thead><tbody><tr><td><strong>Greenwood Total</strong></td>`;
-  METRICS.forEach(m => {
-    const rawActual = m.isVol ? (storeRawSum[m.key]||0) : ((storeRawSum[m.key]||0) / repsData.length);
-    const actual = Math.round(rawActual * 10) / 10;
-    const pct = m.teamGoal > 0 ? (actual / m.teamGoal) * 100 : 0;
-    tHTML += `<td class="center"><span class="${colorCls(pct)}">${pct.toFixed(1)}%</span><br><span class="goal-125" style="margin-left:0;">${formatMetricValue(actual, m.unit)} / ${formatMetricValue(m.teamGoal, m.unit)}</span></td>`;
-  });
-  tHTML += `</tr></tbody></table></div></div>`;
-  
-  tHTML += `<div class="card card-flex" id="card-team-breakdown">${cardHeader("Team Metric Breakdown (% to Target)", "card-team-breakdown")}<div class="table-wrap"><table><thead><tr><th>Team</th>`;
-  METRICS.forEach(m => { 
-    tHTML += `<th class="center">${m.key}<br><span class="goal-125">(125%: ${formatMetricValue(m.teamGoal125, m.unit)})</span></th>`; 
-  });
-  tHTML += `</tr></thead><tbody>`;
-  
-  tArr.forEach(t=>{
-    tHTML+=`<tr><td><strong>${teamFullLabel(t.name)}</strong></td>`;
-    METRICS.forEach(m=>{ const pct = t.mt[m.key]; tHTML+=`<td class="center"><span class="${colorCls(pct)}">${pct.toFixed(1)}%</span></td>`; });
-    tHTML+=`</tr>`;
-  });
-  tHTML+=`</tbody></table></div></div>`;
-  
-  document.getElementById("tv-team-section").innerHTML = tHTML;
-
-  let iHTML = `<div class="card card-flex" id="card-individual-leaderboard" style="height: 100%;">${cardHeader("Individual Leaderboard", "card-individual-leaderboard")}<div class="table-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Team</th><th class="center">Composite</th>`;
-  METRICS.forEach(m => { iHTML += `<th class="center">${m.key}</th>`; });
-  iHTML += `<th>Focus Area</th><th>Gap</th></tr></thead><tbody>`;
-  
-  repsData.forEach((r,i)=>{
-    iHTML+=`<tr><td>${rbadge(i)}</td><td style="font-size:16px;"><strong>${r.name}</strong></td><td>${teamTag(r.team)}</td>`;
-    iHTML+=`<td class="center"><span class="pill ${pillCls(r.composite)}">${r.composite.toFixed(1)}%</span></td>`;
-    METRICS.forEach(m=>{ const p=r.mp[m.key]; iHTML+=`<td class="center"><span class="${colorCls(p.pct)}">${formatMetricValue(p.val, m.unit)}</span><br><span class="goal-125" style="margin-left:0;">/ ${formatMetricValue(p.goal, m.unit)}</span></td>`; });
-    const gap=r.focusGap>0?`-${r.focusGap.toFixed(1)}`:"On track";
-    iHTML+=`<td class="c-focus">${r.focusArea}</td><td class="c-gap">${gap}</td></tr>`;
-  });
-  iHTML+=`</tbody></table></div></div>`;
-  
-  document.getElementById("tv-leaderboard-section").innerHTML = iHTML;
-}
-
-/* ── Fullscreen ── */
-function toggleCardFullscreen(cardId) {
-  const el = document.getElementById(cardId);
-  if (!el) return;
-  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
-  if (fsEl === el) {
-    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
-  } else {
-    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+function parseLine(line) {
+  const cols = []; let cur = '', q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { if (q && line[i+1] === '"') { cur += '"'; i++; } else q = !q; }
+    else if (ch === ',' && !q) { cols.push(cur.trim()); cur = ''; }
+    else cur += ch;
   }
+  cols.push(cur.trim()); return cols;
 }
-function handleFullscreenChange() {
-  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
-  document.querySelectorAll('.fullscreen-btn').forEach(btn => {
-    const card = btn.closest('.card');
-    btn.textContent = (card && card === fsEl) ? '✕' : '⛶';
+
+function parseGoals(text) {
+  const rows = text.split('\n').map(parseLine), next = {};
+  const hdr = [
+    [/postpaid\s*voice/i,"Postpaid Voice"],[/bts/i,"BTS"],[/hsi/i,"HSI"],[/value\s*added\s*features|vaf/i,"VAF"],
+    [/premium\s*(rate\s*plan\s*)?mix/i,"Premium Mix"],[/apk/i,"APK"],[/csat/i,"CSAT"],[/visa/i,"Visa App Rate"],[/p360/i,"P360"]
+  ];
+  for (let r = 0; r < rows.length; r++) for (let c = 0; c < rows[r].length; c++) {
+    const cell = rows[r][c]; if (!cell) continue;
+    hdr.forEach(([re, key]) => {
+      if (!re.test(cell)) return;
+      // Row 10 holds store totals; fall back to the row under the header
+      let v = (rows.length >= 10 && rows[9]) ? parseFloat(rows[9][c]) : NaN;
+      if (isNaN(v) && rows[r+1]) v = parseFloat(rows[r+1][c]);
+      if (!isNaN(v)) { next[key] = next[key] || {}; next[key].teamGoal = v; next[key].teamGoal125 = v * 1.25; }
+    });
+  }
+  const lab = [[/^voice$/i,"Postpaid Voice"],[/^bts$/i,"BTS"],[/^hsi$/i,"HSI"],[/^accessories$/i,"APK"],[/^csat$/i,"CSAT"],[/^visa$/i,"Visa App Rate"],[/^p360$/i,"P360"]];
+  for (let r = 0; r < rows.length; r++) for (let c = 0; c < rows[r].length; c++) {
+    const cell = (rows[r][c]||'').trim(); if (!cell) continue;
+    const m = lab.find(([re]) => re.test(cell)); if (!m) continue;
+    const v = parseFloat(rows[r][c+1]);
+    if (!isNaN(v)) { next[m[1]] = next[m[1]] || {}; next[m[1]].goal = v; }
+  }
+  Object.keys(next).forEach(k => { if (next[k].goal === undefined && next[k].teamGoal !== undefined) next[k].goal = next[k].teamGoal; });
+  if (Object.keys(next).length) liveGoals = next;
+}
+
+function buildMetrics(isLive) {
+  return METRIC_DEFS.map(d => {
+    const s = isLive ? (liveGoals[d.key] || {}) : {}, fb = FALLBACK_GOALS[d.key];
+    return {...d, goal: s.goal ?? fb.goal, teamGoal: s.teamGoal ?? fb.teamGoal, teamGoal125: s.teamGoal125 ?? fb.teamGoal125, _fb: isLive && s.goal === undefined};
   });
 }
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+function parseData(text) {
+  const rows = text.trim().split('\n'), headers = parseLine(rows[0]);
+  repsData = [];
+  for (let i = 1; i < rows.length; i++) {
+    if (!rows[i].trim()) continue;
+    const cols = parseLine(rows[i]), rep = {name: cols[0], team: cols[1], data: {}};
+    METRICS.forEach(m => { const ix = headers.indexOf(m.key); rep.data[m.key] = ix > -1 ? (parseFloat(cols[ix]) || 0) : 0; });
+    if (rep.name && rep.team) repsData.push(processRep(rep));
+  }
+  repsData.sort((a,b) => b.composite - a.composite);
+  render();
+}
+
+const getWeights = () => { const t = METRICS.reduce((a,b) => a + b.weight, 0) || 1; return METRICS.map(m => m.weight / t); };
+
+function processRep(raw) {
+  const w = getWeights(); let composite = 0, low = Infinity, focusArea = "", focusGap = 0; const mp = {};
+  METRICS.forEach((m,i) => {
+    const val = raw.data[m.key], pct = m.goal > 0 ? (val / m.goal) * 100 : 0;
+    composite += pct * w[i]; mp[m.key] = {pct, val, goal: m.goal};
+    if (pct < low) { low = pct; focusArea = m.key; focusGap = m.goal - val; }
+  });
+  return {name: raw.name, team: raw.team, composite, focusArea, focusGap, mp};
+}
+
+/* ===== HELPERS ===== */
+const pillCls = s => s >= 100 ? "pg" : s >= 80 ? "py" : "pr";
+const colorCls = p => p >= 100 ? "cg" : p >= 80 ? "cy" : "cr";
+const rbadge = i => `<span class="rb ${["g","s","b"][i] || ""}">${i+1}</span>`;
+const teamTag = t => `<span class="tag ${t==="Team Dom"?"t-dom":"t-clove"}">${TEAM_NAMES[t] ? TEAM_NAMES[t].display : t}</span>`;
+const teamFull = t => { const n = TEAM_NAMES[t] || {display:t, og:t}; return `${n.display} <span style="font-size:11px;color:var(--muted)">(${n.og})</span>`; };
+function fmt(v, unit) {
+  if (v === undefined || v === null || isNaN(v)) return v;
+  return unit === "$" ? `$${Number(v).toLocaleString('en-US',{maximumFractionDigits:2})}` : `${v}${unit||""}`;
+}
+const head = (title, id) => `<div class="chead"><div class="lbl">${title}</div><button class="fsb" onclick="fs('${id}')" title="Full screen">⛶</button></div>`;
+const th125 = m => `<th class="c">${m.key}<br><span class="g125">(125%: ${fmt(m.teamGoal125, m.unit)})</span></th>`;
+
+/* ===== RENDER ===== */
+function render() {
+  if (!repsData.length) return;
+  const w = getWeights(), teams = {}, store = {};
+  repsData.forEach(r => {
+    teams[r.team] = teams[r.team] || {reps: [], sum: {}};
+    teams[r.team].reps.push(r);
+    METRICS.forEach(m => {
+      teams[r.team].sum[m.key] = (teams[r.team].sum[m.key] || 0) + r.mp[m.key].val;
+      store[m.key] = (store[m.key] || 0) + r.mp[m.key].val;
+    });
+  });
+  const tArr = Object.keys(teams).map(t => {
+    const tm = teams[t], mt = {}; let avg = 0;
+    METRICS.forEach((m,i) => {
+      const actual = m.isVol ? tm.sum[m.key] : tm.sum[m.key] / tm.reps.length;
+      mt[m.key] = m.teamGoal > 0 ? (actual / m.teamGoal) * 100 : 0; avg += mt[m.key] * w[i];
+    });
+    return {name: t, avg, mt};
+  }).sort((a,b) => b.avg - a.avg);
+
+  let h = `<div class="card" id="c-teams">${head("Team Standings","c-teams")}<div class="teams">`;
+  tArr.forEach((t,i) => {
+    h += `<div class="team ${i===0?"first":""}"><div class="tl">Team</div><div class="tn">${teamFull(t.name)}</div><div class="ts">${t.avg.toFixed(1)}<span style="font-size:24px">%</span></div>${i===0?`<span class="chip">👑 LEADING</span>`:`<div class="note">#2 this period</div>`}</div>`;
+  });
+  h += `</div></div>`;
+
+  h += `<div class="card" id="c-store">${head("Full Store — Actual vs Target","c-store")}<div class="tw"><table><thead><tr><th>Store</th>${METRICS.map(th125).join("")}</tr></thead><tbody><tr><td><strong>Greenwood Total</strong></td>`;
+  METRICS.forEach(m => {
+    const raw = m.isVol ? (store[m.key] || 0) : (store[m.key] || 0) / repsData.length, actual = Math.round(raw * 10) / 10;
+    const pct = m.teamGoal > 0 ? (actual / m.teamGoal) * 100 : 0;
+    h += `<td class="c"><span class="${colorCls(pct)}">${pct.toFixed(1)}%</span><br><span class="g125">${fmt(actual, m.unit)} / ${fmt(m.teamGoal, m.unit)}</span></td>`;
+  });
+  h += `</tr></tbody></table></div></div>`;
+
+  h += `<div class="card flex" id="c-break">${head("Team Metric Breakdown (% to Target)","c-break")}<div class="tw"><table><thead><tr><th>Team</th>${METRICS.map(th125).join("")}</tr></thead><tbody>`;
+  tArr.forEach(t => {
+    h += `<tr><td><strong>${teamFull(t.name)}</strong></td>${METRICS.map(m => `<td class="c"><span class="${colorCls(t.mt[m.key])}">${t.mt[m.key].toFixed(1)}%</span></td>`).join("")}</tr>`;
+  });
+  h += `</tbody></table></div></div>`;
+  $("side").innerHTML = h;
+
+  let i2 = `<div class="card flex" id="c-ind" style="height:100%">${head("Individual Leaderboard","c-ind")}<div class="tw"><table><thead><tr><th>#</th><th>Name</th><th>Team</th><th class="c">Composite</th>${METRICS.map(m => `<th class="c">${m.key}</th>`).join("")}<th>Focus Area</th><th>Gap</th></tr></thead><tbody>`;
+  repsData.forEach((r,i) => {
+    i2 += `<tr><td>${rbadge(i)}</td><td style="font-size:16px"><strong>${r.name}</strong></td><td>${teamTag(r.team)}</td><td class="c"><span class="pill ${pillCls(r.composite)}">${r.composite.toFixed(1)}%</span></td>`;
+    METRICS.forEach(m => { const p = r.mp[m.key]; i2 += `<td class="c"><span class="${colorCls(p.pct)}">${fmt(p.val, m.unit)}</span><br><span class="g125">/ ${fmt(p.goal, m.unit)}</span></td>`; });
+    i2 += `<td class="focus">${r.focusArea}</td><td class="gap">${r.focusGap > 0 ? "-" + r.focusGap.toFixed(1) : "On track"}</td></tr>`;
+  });
+  i2 += `</tbody></table></div></div>`;
+  $("main").innerHTML = i2;
+}
+
+/* ===== FULLSCREEN ===== */
+function fs(id) {
+  const el = $(id); if (!el) return;
+  const cur = document.fullscreenElement || document.webkitFullscreenElement;
+  if (cur === el) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+}
+function fsChange() {
+  const cur = document.fullscreenElement || document.webkitFullscreenElement;
+  document.querySelectorAll('.fsb').forEach(b => { const c = b.closest('.card'); b.textContent = (c && c === cur) ? '✕' : '⛶'; });
+}
+document.addEventListener('fullscreenchange', fsChange);
+document.addEventListener('webkitfullscreenchange', fsChange);
 </script>
 </body>
 </html>
