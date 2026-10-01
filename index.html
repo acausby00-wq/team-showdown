@@ -114,7 +114,7 @@ const OCT_GID = "1979567923"; // October Actuals tab
 const csv = gid => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
 
 const MONTH_DATA = [
-  { label: "October 2026 (Live)",  dataUrl: csv(1979567923),     isLive: true, theme: "halloween" },
+  { label: "October 2026 (Live)",  dataUrl: csv(OCT_GID), isLive: true, theme: "halloween", exclude: ["Visa App Rate"] },
   { label: "August 2026 (Final)",  dataUrl: csv("2037911790"), isLive: false },
   { label: "July 2026 (Final)",    dataUrl: csv("333252067"),  isLive: false },
   { label: "June 2026 (Final)",    dataUrl: csv("0"),          isLive: false }
@@ -133,7 +133,7 @@ const FALLBACK_GOALS = {
   "HSI":{goal:8,teamGoal:29,teamGoal125:36},"APK":{goal:2.0,teamGoal:2.0,teamGoal125:2.5},
   "CSAT":{goal:9.2,teamGoal:9.2,teamGoal125:11.5},"Visa App Rate":{goal:7.5,teamGoal:7.5,teamGoal125:9.3},
   "Premium Mix":{goal:80,teamGoal:80,teamGoal125:100},
-  "VAF":{goal:19,teamGoal:19,teamGoal125:21}, // TODO: replace 0s with real VAF targets
+  "VAF":{goal:19,teamGoal:19,teamGoal125:21},
   "P360":{goal:40,teamGoal:40,teamGoal125:50}
 };
 const TEAM_NAMES = {"Team Dom":{display:"The Vipers",og:"Team Dom"},"Team Clove":{display:"The Phantoms",og:"Team Clove"}};
@@ -185,7 +185,7 @@ async function fetchData() {
       if (goalsRes && goalsRes.ok && !(goalsRes.headers.get("content-type")||"").includes("text/html")) parseGoals(await goalsRes.text());
       else fellBack = true;
     }
-    METRICS = buildMetrics(src.isLive);
+    METRICS = buildMetrics(src);
     let keys = [];
     if (src.isLive) { keys = METRICS.filter(m => m._fb).map(m => m.key); if (keys.length) fellBack = true; }
     if (!dataRes.ok || (dataRes.headers.get("content-type")||"").includes("text/html")) throw new Error("Data sheet restricted or invalid URL.");
@@ -232,8 +232,9 @@ function parseGoals(text) {
   if (Object.keys(next).length) liveGoals = next;
 }
 
-function buildMetrics(isLive) {
-  return METRIC_DEFS.map(d => {
+function buildMetrics(src) {
+  const isLive = src.isLive, skip = src.exclude || [];
+  return METRIC_DEFS.filter(d => !skip.includes(d.key)).map(d => {
     const s = isLive ? (liveGoals[d.key] || {}) : {}, fb = FALLBACK_GOALS[d.key];
     return {...d, goal: s.goal ?? fb.goal, teamGoal: s.teamGoal ?? fb.teamGoal, teamGoal125: s.teamGoal125 ?? fb.teamGoal125, _fb: isLive && s.goal === undefined};
   });
