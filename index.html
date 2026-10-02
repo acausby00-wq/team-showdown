@@ -114,7 +114,7 @@ const OCT_GID = "1979567923"; // October Actuals tab
 const csv = gid => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
 
 const MONTH_DATA = [
-  { label: "October 2026 (Live)",  dataUrl: csv(1979567923), isLive: true, theme: "halloween", exclude: ["Visa App Rate"] },
+  { label: "October 2026 (Live)",  dataUrl: csv(OCT_GID), isLive: true, theme: "halloween", exclude: ["Visa App Rate"] },
   { label: "August 2026 (Final)",  dataUrl: csv("2037911790"), isLive: false },
   { label: "July 2026 (Final)",    dataUrl: csv("333252067"),  isLive: false },
   { label: "June 2026 (Final)",    dataUrl: csv("0"),          isLive: false }
@@ -138,9 +138,13 @@ const FALLBACK_GOALS = {
 };
 const TEAM_NAMES = {"Team Dom":{display:"The Vipers",og:"Team Dom"},"Team Clove":{display:"The Phantoms",og:"Team Clove"}};
 
+// Used only when the sheet's Team column is blank (the October Actuals tab leaves it empty).
+// Add each rep as  "Name": "Team Dom"  or  "Name": "Team Clove".
+const ROSTER = { "Dominique": "Team Dom", "Clove": "Team Clove" };
+
 /* ===== STATE ===== */
 let METRICS = METRIC_DEFS.map(d => ({...d, ...FALLBACK_GOALS[d.key]}));
-let liveGoals = {}, repsData = [];
+let liveGoals = {}, repsData = [], storeActual = null, curSrc = null;
 const $ = id => document.getElementById(id);
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -178,6 +182,7 @@ function updateSyncUI(ok, src, fellBack, keys) {
 async function fetchData() {
   const src = MONTH_DATA[$('month-selector').value];
   applyTheme(src);
+  if (curSrc !== src) { curSrc = src; $('side').innerHTML = ''; $('main').innerHTML = ''; }
   let fellBack = false;
   try {
     const [dataRes, goalsRes] = await Promise.all([fetch(src.dataUrl), src.isLive ? fetch(LIVE_GOALS_URL) : Promise.resolve(null)]);
@@ -191,7 +196,7 @@ async function fetchData() {
     if (!dataRes.ok || (dataRes.headers.get("content-type")||"").includes("text/html")) throw new Error("Data sheet restricted or invalid URL.");
     parseData(await dataRes.text());
     updateSyncUI(true, src, fellBack, keys);
-  } catch (e) { console.error(e); updateSyncUI(false, src, fellBack); }
+  } catch (e) { console.error(e); updateSyncUI(false, src, fellBack); $('err').querySelector('span').textContent = "Couldn't load data: " + e.message; }
 }
 
 function parseLine(line) {
@@ -205,28 +210,25 @@ function parseLine(line) {
   cols.push(cur.trim()); return cols;
 }
 
+const num = v => parseFloat(String(v == null ? '' : v).replace(/[$,%\s]/g, ''));
 function parseGoals(text) {
   const rows = text.split('\n').map(parseLine), next = {};
-  const hdr = [
-    [/postpaid\s*voice/i,"Postpaid Voice"],[/bts/i,"BTS"],[/hsi/i,"HSI"],[/value\s*added\s*features|vaf/i,"VAF"],
-    [/premium\s*(rate\s*plan\s*)?mix/i,"Premium Mix"],[/apk/i,"APK"],[/csat/i,"CSAT"],[/visa/i,"Visa App Rate"],[/p360/i,"P360"]
-  ];
-  for (let r = 0; r < rows.length; r++) for (let c = 0; c < rows[r].length; c++) {
-    const cell = rows[r][c]; if (!cell) continue;
-    hdr.forEach(([re, key]) => {
-      if (!re.test(cell)) return;
-      // Row 10 holds store totals; fall back to the row under the header
-      let v = (rows.length >= 10 && rows[9]) ? parseFloat(rows[9][c]) : NaN;
-      if (isNaN(v) && rows[r+1]) v = parseFloat(rows[r+1][c]);
-      if (!isNaN(v)) { next[key] = next[key] || {}; next[key].teamGoal = v; next[key].teamGoal125 = v * 1.25; }
-    });
-  }
-  const lab = [[/^voice$/i,"Postpaid Voice"],[/^bts$/i,"BTS"],[/^hsi$/i,"HSI"],[/^accessories$/i,"APK"],[/^csat$/i,"CSAT"],[/^visa$/i,"Visa App Rate"],[/^p360$/i,"P360"]];
-  for (let r = 0; r < rows.length; r++) for (let c = 0; c < rows[r].length; c++) {
-    const cell = (rows[r][c]||'').trim(); if (!cell) continue;
-    const m = lab.find(([re]) => re.test(cell)); if (!m) continue;
-    const v = parseFloat(rows[r][c+1]);
-    if (!isNaN(v)) { next[m[1]] = next[m[1]] || {}; next[m[1]].goal = v; }
+  const put = (key, field, v) => { if (!isNaN(v)) { next[key] = next[key] || {}; next[key][field] = v; } };
+  // Store goals: header row 1, value directly beneath each header
+  const hdr = [[/^net postpaid voice/i,"Postpaid Voice"],[/^net postpaid bts/i,"BTS"],[/^net hsi/i,"HSI"],[/^vaf$/i,"VAF"],
+    [/^csat$/i,"CSAT"],[/^apk$/i,"APK"],[/^p360$/i,"P360"],[/^premium.*mix/i,"Premium Mix"]];
+  (rows[0] || []).forEach((cell, c) => hdr.forEach(([re, key]) => {
+    if (re.test(cell)) { const v = num((rows[1] || [])[c]); put(key, 'teamGoal', v); put(key, 'teamGoal125', v * 1.25); }
+  }));
+  // Rep goals: label / value pairs underneath the "Rep Goals" heading
+  let rg = null;
+  rows.forEach((row, r) => row.forEach((cell, c) => { if (/^rep goals$/i.test(cell)) rg = {r, c}; }));
+  if (rg) {
+    const lab = [[/^voice$/i,"Postpaid Voice"],[/^bts$/i,"BTS"],[/^hsi$/i,"HSI"],[/^csat$/i,"CSAT"],[/^p360$/i,"P360"],[/^vaf$/i,"VAF"]];
+    for (let r = rg.r + 1; r < Math.min(rows.length, rg.r + 15); r++) {
+      const label = ((rows[r] || [])[rg.c] || '').trim(), m = lab.find(([re]) => re.test(label));
+      if (m) put(m[1], 'goal', num(rows[r][rg.c + 1]));
+    }
   }
   Object.keys(next).forEach(k => { if (next[k].goal === undefined && next[k].teamGoal !== undefined) next[k].goal = next[k].teamGoal; });
   if (Object.keys(next).length) liveGoals = next;
@@ -242,13 +244,18 @@ function buildMetrics(src) {
 
 function parseData(text) {
   const rows = text.trim().split('\n'), headers = parseLine(rows[0]);
-  repsData = [];
+  repsData = []; storeActual = null;
   for (let i = 1; i < rows.length; i++) {
     if (!rows[i].trim()) continue;
-    const cols = parseLine(rows[i]), rep = {name: cols[0], team: cols[1], data: {}};
-    METRICS.forEach(m => { const ix = headers.indexOf(m.key); rep.data[m.key] = ix > -1 ? (parseFloat(cols[ix]) || 0) : 0; });
-    if (rep.name && rep.team) repsData.push(processRep(rep));
+    const cols = parseLine(rows[i]), name = cols[0];
+    if (!name) continue;
+    const data = {};
+    METRICS.forEach(m => { const ix = headers.indexOf(m.key); data[m.key] = ix > -1 ? (parseFloat(cols[ix]) || 0) : 0; });
+    if (/^store\s*(actual|total)/i.test(name)) { storeActual = data; continue; }
+    if (/^(open|total)$/i.test(name)) continue;
+    repsData.push(processRep({name, team: cols[1] || ROSTER[name] || "", data}));
   }
+  if (!repsData.length) throw new Error("No rep rows found in the data sheet.");
   repsData.sort((a,b) => b.composite - a.composite);
   render();
 }
@@ -269,7 +276,7 @@ function processRep(raw) {
 const pillCls = s => s >= 100 ? "pg" : s >= 80 ? "py" : "pr";
 const colorCls = p => p >= 100 ? "cg" : p >= 80 ? "cy" : "cr";
 const rbadge = i => `<span class="rb ${["g","s","b"][i] || ""}">${i+1}</span>`;
-const teamTag = t => `<span class="tag ${t==="Team Dom"?"t-dom":"t-clove"}">${TEAM_NAMES[t] ? TEAM_NAMES[t].display : t}</span>`;
+const teamTag = t => !t ? `<span class="tag">—</span>` : `<span class="tag ${t==="Team Dom"?"t-dom":"t-clove"}">${TEAM_NAMES[t] ? TEAM_NAMES[t].display : t}</span>`;
 const teamFull = t => { const n = TEAM_NAMES[t] || {display:t, og:t}; return `${n.display} <span style="font-size:11px;color:var(--muted)">(${n.og})</span>`; };
 function fmt(v, unit) {
   if (v === undefined || v === null || isNaN(v)) return v;
@@ -283,10 +290,9 @@ function render() {
   if (!repsData.length) return;
   const w = getWeights(), teams = {}, store = {};
   repsData.forEach(r => {
-    teams[r.team] = teams[r.team] || {reps: [], sum: {}};
-    teams[r.team].reps.push(r);
+    if (r.team) { teams[r.team] = teams[r.team] || {reps: [], sum: {}}; teams[r.team].reps.push(r); }
     METRICS.forEach(m => {
-      teams[r.team].sum[m.key] = (teams[r.team].sum[m.key] || 0) + r.mp[m.key].val;
+      if (r.team) teams[r.team].sum[m.key] = (teams[r.team].sum[m.key] || 0) + r.mp[m.key].val;
       store[m.key] = (store[m.key] || 0) + r.mp[m.key].val;
     });
   });
@@ -307,7 +313,7 @@ function render() {
 
   h += `<div class="card" id="c-store">${head("Full Store — Actual vs Target","c-store")}<div class="tw"><table><thead><tr><th>Store</th>${METRICS.map(th125).join("")}</tr></thead><tbody><tr><td><strong>Greenwood Total</strong></td>`;
   METRICS.forEach(m => {
-    const raw = m.isVol ? (store[m.key] || 0) : (store[m.key] || 0) / repsData.length, actual = Math.round(raw * 10) / 10;
+    const raw = storeActual ? (storeActual[m.key] || 0) : m.isVol ? (store[m.key] || 0) : (store[m.key] || 0) / repsData.length, actual = Math.round(raw * 10) / 10;
     const pct = m.teamGoal > 0 ? (actual / m.teamGoal) * 100 : 0;
     h += `<td class="c"><span class="${colorCls(pct)}">${pct.toFixed(1)}%</span><br><span class="g125">${fmt(actual, m.unit)} / ${fmt(m.teamGoal, m.unit)}</span></td>`;
   });
